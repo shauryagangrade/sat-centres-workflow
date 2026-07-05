@@ -70,7 +70,6 @@ class ValidationSettings:
         default_factory=lambda: [
             "INDIA",
             "US",
-            "USA",
             "CANADA",
             "UK",
             "UAE",
