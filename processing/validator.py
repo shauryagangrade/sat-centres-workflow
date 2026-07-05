@@ -50,7 +50,7 @@ class ValidationSummary:
 
 # Simplified bounding boxes for continents (rough ocean detection)
 CONTINENT_BBOXES: Dict[str, Tuple[float, float, float, float]] = {
-    "asia": (10.0, -170.0, 55.0, 180.0),
+    "asia": (-10.0, -170.0, 55.0, 180.0),
     "europe": (35.0, -25.0, 72.0, 45.0),
     "north_america": (7.0, -170.0, 85.0, -50.0),
     "south_america": (-60.0, -90.0, 15.0, -30.0),

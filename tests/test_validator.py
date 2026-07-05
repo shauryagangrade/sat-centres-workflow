@@ -115,8 +115,8 @@ class TestCentreValidator:
 
     def test_is_on_land_ocean(self) -> None:
         """Test that ocean coordinates are detected."""
-        # (-10.0, 60.0) is in the Southern Indian Ocean, outside all continent bounding boxes
-        assert self.validator._is_on_land(-10.0, 60.0) is False
+        # (-20.0, 60.0) is in the Southern Indian Ocean, outside all continent bounding boxes
+        assert self.validator._is_on_land(-20.0, 60.0) is False
 
     def test_get_summary(self) -> None:
         """Test summary generation."""
