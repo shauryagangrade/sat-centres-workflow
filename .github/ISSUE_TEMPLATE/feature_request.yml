@@ -1,0 +1,55 @@
+name: Feature Request
+description: Suggest a new feature or improvement for sat-centres-workflow
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Please describe the use case clearly.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What problem would this feature solve? Why do you need it?
+      placeholder: "Currently, there's no way to... which means I have to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the feature or behaviour you'd like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or alternative approaches you've already tried?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which pipeline stage does this affect?
+      options:
+        - Download
+        - Normalize
+        - Geocode
+        - Validate
+        - Update
+        - Reports
+        - Schema Transformer
+        - CLI / UX
+        - Configuration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Any mockups, examples, or related issues?

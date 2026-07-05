@@ -1,8 +1,16 @@
 # SAT Centre Updater
 
+[![CI](https://github.com/shauryagangrade/sat-centres-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/shauryagangrade/sat-centres-workflow/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+
 A production-quality Python application that automatically downloads, processes, geocodes, validates, and exports SAT examination centres.
 
 **Only one user input required**: a browser cURL copied from the official SAT website's Network tab.
+
+![SAT Centre Updater — pipeline in action](docs/media/demo.gif)
+
+> ⭐ If this tool saves you time, please star the repo — it helps others find it.
 
 ## Quick Start
 
@@ -248,4 +256,5 @@ pytest tests/ -v
 
 ## License
 
-MIT
+Copyright 2026 Shaurya Gangrade.  
+Licensed under the [Apache License, Version 2.0](LICENSE).

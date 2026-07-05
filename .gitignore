@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# SQLite cache
+cache/cache.db
+cache/*.db
+
+# Dataset outputs (generated, not source-controlled)
+datasets/sat/raw/
+datasets/sat/generated/
+datasets/sat/output/
+datasets/sat/reports/
+
+# Logs
+logs/
+
+# Testing
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# OS / editor artefacts
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
