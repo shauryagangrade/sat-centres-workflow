@@ -11,7 +11,7 @@ Usage:
     results = manager.geocode("Legacy School Bangalore India")
 """
 
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Dict, List, Optional, Protocol
 
 from cache.cache_manager import CacheManager
 from config import settings
