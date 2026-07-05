@@ -1,0 +1,41 @@
+# SAT Centre Updater - Dependencies
+# Python 3.11+ required
+
+# HTTP & Networking
+requests>=2.31.0
+aiohttp>=3.9.0
+fake-useragent>=1.4.0
+
+# CLI & Terminal
+rich>=13.7.0
+click>=8.1.7
+tqdm>=4.66.1
+
+# Data Validation & Models
+pydantic>=2.5.0
+
+# Geocoding & Fuzzy Matching
+geopy>=2.4.1
+rapidfuzz>=3.6.1
+
+# Data Processing
+beautifulsoup4>=4.12.2
+lxml>=4.9.4
+pyyaml>=6.0.1
+
+# Logging
+loguru>=0.7.2
+
+# Cryptography (for token handling)
+cryptography>=41.0.7
+
+# Testing
+pytest>=7.4.3
+pytest-asyncio>=0.23.2
+pytest-cov>=4.1.0
+
+# Development & Linting
+black>=23.12.1
+isort>=5.13.0
+mypy>=1.8.0
+ruff>=0.1.9

@@ -1,0 +1,264 @@
+2026-07-05 00:50:42,013 [INFO] __main__: SAT Centre Updater started
+2026-07-05 10:56:07,878 [INFO] __main__: SAT Centre Updater started
+2026-07-05 10:56:08,154 [ERROR] __main__: Traceback (most recent call last):
+  File "main.py", line 226, in run_normalize
+    from processing.downloader import Downloader
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 67, in <module>
+    class Downloader:
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 338, in Downloader
+    def list_raw_files(self) -> List[Path]:
+NameError: name 'List' is not defined
+
+2026-07-05 10:56:08,255 [INFO] processing.exporter: Reports generated in datasets/sat/reports
+2026-07-05 10:56:43,344 [INFO] __main__: SAT Centre Updater started
+2026-07-05 10:59:18,282 [ERROR] __main__: Traceback (most recent call last):
+  File "main.py", line 195, in run_download
+    from connectors.sat_connector import SatConnector
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/connectors/sat_connector.py", line 21, in <module>
+    from processing.downloader import Downloader, DownloadResult
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 67, in <module>
+    class Downloader:
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 338, in Downloader
+    def list_raw_files(self) -> List[Path]:
+NameError: name 'List' is not defined
+
+2026-07-05 10:59:21,960 [ERROR] __main__: Traceback (most recent call last):
+  File "main.py", line 226, in run_normalize
+    from processing.downloader import Downloader
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 67, in <module>
+    class Downloader:
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/downloader.py", line 338, in Downloader
+    def list_raw_files(self) -> List[Path]:
+NameError: name 'List' is not defined
+
+2026-07-05 11:04:04,916 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:04:05,345 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): aru-test-center-search.collegeboard.org:443
+2026-07-05 11:04:06,022 [DEBUG] urllib3.connectionpool: https://aru-test-center-search.collegeboard.org:443 "GET /prod/test-centers?date=2026-08-22&country=CA&date=2026-08-22&country=CA HTTP/1.1" 200 1561
+2026-07-05 11:04:06,137 [INFO] processing.geocoder: Geocoding [1/35] Toronto STEM School
+2026-07-05 11:04:06,161 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): nominatim.openstreetmap.org:443
+2026-07-05 11:04:06,890 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Toronto+STEM+School+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:06,918 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): photon.komoot.io:443
+2026-07-05 11:04:07,541 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Toronto+STEM+School+TORONTO+CANADA&limit=5 HTTP/1.1" 200 752
+2026-07-05 11:04:07,553 [INFO] processing.geocoder: Geocoding [2/35] MCCANNY SECONDARY SCH
+2026-07-05 11:04:08,328 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=MCCANNY+SECONDARY+SCH+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:08,590 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=MCCANNY+SECONDARY+SCH+TORONTO+CANADA&limit=5 HTTP/1.1" 200 773
+2026-07-05 11:04:08,597 [INFO] processing.geocoder: Geocoding [3/35] Brooklyn College
+2026-07-05 11:04:09,351 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Brooklyn+College+NORTH+YORK+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 456
+2026-07-05 11:04:09,360 [INFO] processing.geocoder: Geocoding [4/35] QUEEN'S GROVE SCHOOL
+2026-07-05 11:04:11,091 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=QUEEN%27S+GROVE+SCHOOL+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:11,280 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=QUEEN%27S+GROVE+SCHOOL+TORONTO+CANADA&limit=5 HTTP/1.1" 200 769
+2026-07-05 11:04:11,288 [INFO] processing.geocoder: Geocoding [5/35] JOHNATHAN ACADEMY
+2026-07-05 11:04:11,810 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=JOHNATHAN+ACADEMY+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:12,041 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=JOHNATHAN+ACADEMY+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 764
+2026-07-05 11:04:12,047 [INFO] processing.geocoder: Geocoding [6/35] KAMLOOPS CHRISTIAN SCHOOL
+2026-07-05 11:04:12,830 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=KAMLOOPS+CHRISTIAN+SCHOOL+KAMLOOPS+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 553
+2026-07-05 11:04:12,837 [INFO] processing.geocoder: Geocoding [7/35] WALES COLLEGE
+2026-07-05 11:04:14,063 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=WALES+COLLEGE+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 482
+2026-07-05 11:04:14,071 [INFO] processing.geocoder: Geocoding [8/35] Vancouver Independent School
+2026-07-05 11:04:14,986 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Vancouver+Independent+School+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 480
+2026-07-05 11:04:14,990 [INFO] processing.geocoder: Geocoding [9/35] City Vancouver Academy
+2026-07-05 11:04:16,087 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=City+Vancouver+Academy+RICHMOND+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:16,227 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=City+Vancouver+Academy+RICHMOND+CANADA&limit=5 HTTP/1.1" 200 716
+2026-07-05 11:04:16,233 [INFO] processing.geocoder: Geocoding [10/35] ELTON ACADEMY
+2026-07-05 11:04:16,728 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=ELTON+ACADEMY+RICHMOND+HILL+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:16,917 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=ELTON+ACADEMY+RICHMOND+HILL+CANADA&limit=5 HTTP/1.1" 200 653
+2026-07-05 11:04:16,921 [INFO] processing.geocoder: Geocoding [11/35] Lowell High School
+2026-07-05 11:04:17,754 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Lowell+High+School+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:17,993 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Lowell+High+School+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 701
+2026-07-05 11:04:17,998 [INFO] processing.geocoder: Geocoding [12/35] Canada Cambridge Academy
+2026-07-05 11:04:19,084 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Canada+Cambridge+Academy+MARKHAM+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:19,285 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Canada+Cambridge+Academy+MARKHAM+CANADA&limit=5 HTTP/1.1" 200 593
+2026-07-05 11:04:19,291 [INFO] processing.geocoder: Geocoding [13/35] Saint Lawrence School
+2026-07-05 11:04:20,210 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Saint+Lawrence+School+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:20,723 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Saint+Lawrence+School+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 849
+2026-07-05 11:04:20,728 [INFO] processing.geocoder: Geocoding [14/35] Canada Royal Arts High School
+2026-07-05 11:04:21,645 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Canada+Royal+Arts+High+School+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:21,895 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Canada+Royal+Arts+High+School+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 747
+2026-07-05 11:04:21,900 [INFO] processing.geocoder: Geocoding [15/35] Saint Johns Academy
+2026-07-05 11:04:22,671 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Saint+Johns+Academy+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:22,898 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Saint+Johns+Academy+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 723
+2026-07-05 11:04:22,901 [INFO] processing.geocoder: Geocoding [16/35] SHAWNIGAN LAKE SCH
+2026-07-05 11:04:23,490 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=SHAWNIGAN+LAKE+SCH+SHAWNIGAN+LAKE+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:23,626 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=SHAWNIGAN+LAKE+SCH+SHAWNIGAN+LAKE+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:23,632 [INFO] processing.geocoder: Geocoding [17/35] PARK VIEW EDUCATION CENTER
+2026-07-05 11:04:25,230 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=PARK+VIEW+EDUCATION+CENTER+BRIDGEWATER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:25,446 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=PARK+VIEW+EDUCATION+CENTER+BRIDGEWATER+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:25,450 [INFO] processing.geocoder: Geocoding [18/35] Amberson High School
+2026-07-05 11:04:25,953 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Amberson+High+School+MARKHAM+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 442
+2026-07-05 11:04:25,958 [INFO] processing.geocoder: Geocoding [19/35] LONDON INTERNATIONAL ACADEMY
+2026-07-05 11:04:27,280 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=LONDON+INTERNATIONAL+ACADEMY+LONDON+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:27,519 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=LONDON+INTERNATIONAL+ACADEMY+LONDON+CANADA&limit=5 HTTP/1.1" 200 729
+2026-07-05 11:04:27,523 [INFO] processing.geocoder: Geocoding [20/35] SuOn Academy
+2026-07-05 11:04:27,874 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=SuOn+Academy+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 506
+2026-07-05 11:04:27,877 [INFO] processing.geocoder: Geocoding [21/35] MULGRAVE SCHOOL
+2026-07-05 11:04:29,184 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=MULGRAVE+SCHOOL+WEST+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 451
+2026-07-05 11:04:29,191 [INFO] processing.geocoder: Geocoding [22/35] UT Preparatory Academy
+2026-07-05 11:04:29,841 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=UT+Preparatory+Academy+NORTH+YORK+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:30,057 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=UT+Preparatory+Academy+NORTH+YORK+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:30,063 [INFO] processing.geocoder: Geocoding [23/35] EDGE SCHOOL
+2026-07-05 11:04:31,377 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=EDGE+SCHOOL+CALGARY+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:31,514 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=EDGE+SCHOOL+CALGARY+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:31,518 [INFO] processing.geocoder: Geocoding [24/35] Franklin School
+2026-07-05 11:04:32,504 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Franklin+School+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 470
+2026-07-05 11:04:32,509 [INFO] processing.geocoder: Geocoding [25/35] JAYA INTERNATIONAL HIGH SCHOOL
+2026-07-05 11:04:33,495 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:33,684 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:33,712 [DEBUG] urllib3.connectionpool: Starting new HTTPS connection (1): overpass-api.de:443
+2026-07-05 11:04:34,146 [DEBUG] urllib3.connectionpool: https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 406 371
+2026-07-05 11:04:34,692 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA+ONTARIO&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:34,883 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA+ONTARIO&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:38,695 [DEBUG] urllib3.connectionpool: Resetting dropped connection: overpass-api.de
+2026-07-05 11:04:39,138 [DEBUG] urllib3.connectionpool: https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 406 371
+2026-07-05 11:04:39,672 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:39,908 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=JAYA+INTERNATIONAL+HIGH+SCHOOL+MISSISAUGA&limit=5 HTTP/1.1" 200 864
+2026-07-05 11:04:39,916 [INFO] processing.geocoder: Geocoding [26/35] Grace Christian School
+2026-07-05 11:04:40,590 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Grace+Christian+School+CHARLOTTETOWN+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 450
+2026-07-05 11:04:40,594 [INFO] processing.geocoder: Geocoding [27/35] Collingwood School-Morven
+2026-07-05 11:04:41,681 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Collingwood+School-Morven+WEST+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:41,915 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Collingwood+School-Morven+WEST+VANCOUVER+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:41,918 [INFO] processing.geocoder: Geocoding [28/35] LOWER CANADA COLL
+2026-07-05 11:04:42,744 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=LOWER+CANADA+COLL+MONTREAL+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:42,897 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=LOWER+CANADA+COLL+MONTREAL+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:42,901 [INFO] processing.geocoder: Geocoding [29/35] Gateway College
+2026-07-05 11:04:44,410 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Gateway+College+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 431
+2026-07-05 11:04:44,413 [INFO] processing.geocoder: Geocoding [30/35] West Point Grey Academy
+2026-07-05 11:04:45,101 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=West+Point+Grey+Academy+VANCOUVER+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 472
+2026-07-05 11:04:45,108 [INFO] processing.geocoder: Geocoding [31/35] Keystone School
+2026-07-05 11:04:45,805 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Keystone+School+TORONTO+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 448
+2026-07-05 11:04:45,807 [INFO] processing.geocoder: Geocoding [32/35] Dewey Institute
+2026-07-05 11:04:47,148 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Dewey+Institute+BRACEBRIDGE+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:47,395 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Dewey+Institute+BRACEBRIDGE+CANADA&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:47,399 [DEBUG] urllib3.connectionpool: Resetting dropped connection: overpass-api.de
+2026-07-05 11:04:47,872 [DEBUG] urllib3.connectionpool: https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 406 371
+2026-07-05 11:04:48,823 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Dewey+Institute+BRACEBRIDGE+ONTARIO&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:48,993 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Dewey+Institute+BRACEBRIDGE+ONTARIO&limit=5 HTTP/1.1" 200 None
+2026-07-05 11:04:52,409 [DEBUG] urllib3.connectionpool: Resetting dropped connection: overpass-api.de
+2026-07-05 11:04:52,873 [DEBUG] urllib3.connectionpool: https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 406 371
+2026-07-05 11:04:53,190 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Dewey+Institute+BRACEBRIDGE&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:53,530 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Dewey+Institute+BRACEBRIDGE&limit=5 HTTP/1.1" 200 697
+2026-07-05 11:04:53,535 [INFO] processing.geocoder: Geocoding [33/35] Selwyn House School
+2026-07-05 11:04:54,931 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Selwyn+House+School+WESTMOUNT+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 676
+2026-07-05 11:04:54,934 [INFO] processing.geocoder: Geocoding [34/35] CANADA INTL COLLEGE
+2026-07-05 11:04:55,571 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=CANADA+INTL+COLLEGE+MARKHAM+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:55,768 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=CANADA+INTL+COLLEGE+MARKHAM+CANADA&limit=5 HTTP/1.1" 200 696
+2026-07-05 11:04:55,773 [INFO] processing.geocoder: Geocoding [35/35] Unionville International Academy
+2026-07-05 11:04:56,571 [DEBUG] urllib3.connectionpool: https://nominatim.openstreetmap.org:443 "GET /search?q=Unionville+International+Academy+NORTH+YORK+CANADA&format=jsonv2&limit=5&addressdetails=1 HTTP/1.1" 200 7
+2026-07-05 11:04:56,852 [DEBUG] urllib3.connectionpool: https://photon.komoot.io:443 "GET /api/?q=Unionville+International+Academy+NORTH+YORK+CANADA&limit=5 HTTP/1.1" 200 743
+2026-07-05 11:04:56,903 [INFO] processing.exporter: Reports generated in datasets/sat/reports
+2026-07-05 11:19:31,458 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:19:31,538 [INFO] processing.schema_transformer: Schema map (3 fields):
+2026-07-05 11:19:31,539 [INFO] processing.schema_transformer:   centre_name <- name
+2026-07-05 11:19:31,539 [INFO] processing.schema_transformer:   location.city <- city
+2026-07-05 11:19:31,539 [INFO] processing.schema_transformer:   location.country <- country
+2026-07-05 11:19:31,544 [INFO] processing.schema_transformer: Saved 33 records to datasets/sat/generated/locations.json
+2026-07-05 11:31:17,182 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:32:25,102 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:32:25,470 [INFO] processing.geocoder: Geocoding [1/35] West Point Grey Academy
+2026-07-05 11:32:25,474 [INFO] processing.geocoder: Geocoding [2/35] Keystone School
+2026-07-05 11:32:25,475 [INFO] processing.geocoder: Geocoding [3/35] Dewey Institute
+2026-07-05 11:32:31,674 [INFO] processing.geocoder: Geocoding [4/35] Selwyn House School
+2026-07-05 11:32:31,675 [INFO] processing.geocoder: Geocoding [5/35] CANADA INTL COLLEGE
+2026-07-05 11:32:31,676 [INFO] processing.geocoder: Geocoding [6/35] Unionville International Academy
+2026-07-05 11:32:31,677 [INFO] processing.geocoder: Geocoding [7/35] Toronto STEM School
+2026-07-05 11:32:31,678 [INFO] processing.geocoder: Geocoding [8/35] MCCANNY SECONDARY SCH
+2026-07-05 11:32:31,678 [INFO] processing.geocoder: Geocoding [9/35] Brooklyn College
+2026-07-05 11:32:31,679 [INFO] processing.geocoder: Geocoding [10/35] QUEEN'S GROVE SCHOOL
+2026-07-05 11:32:31,680 [INFO] processing.geocoder: Geocoding [11/35] JOHNATHAN ACADEMY
+2026-07-05 11:32:31,681 [INFO] processing.geocoder: Geocoding [12/35] KAMLOOPS CHRISTIAN SCHOOL
+2026-07-05 11:32:31,682 [INFO] processing.geocoder: Geocoding [13/35] WALES COLLEGE
+2026-07-05 11:32:31,682 [INFO] processing.geocoder: Geocoding [14/35] Vancouver Independent School
+2026-07-05 11:32:31,683 [INFO] processing.geocoder: Geocoding [15/35] Franklin School
+2026-07-05 11:32:31,683 [INFO] processing.geocoder: Geocoding [16/35] JAYA INTERNATIONAL HIGH SCHOOL
+2026-07-05 11:32:41,682 [INFO] processing.geocoder: Geocoding [17/35] Grace Christian School
+2026-07-05 11:32:41,683 [INFO] processing.geocoder: Geocoding [18/35] Collingwood School-Morven
+2026-07-05 11:32:41,684 [INFO] processing.geocoder: Geocoding [19/35] LOWER CANADA COLL
+2026-07-05 11:32:41,685 [INFO] processing.geocoder: Geocoding [20/35] Gateway College
+2026-07-05 11:32:41,686 [INFO] processing.geocoder: Geocoding [21/35] City Vancouver Academy
+2026-07-05 11:32:41,687 [INFO] processing.geocoder: Geocoding [22/35] ELTON ACADEMY
+2026-07-05 11:32:41,689 [INFO] processing.geocoder: Geocoding [23/35] Lowell High School
+2026-07-05 11:32:41,690 [INFO] processing.geocoder: Geocoding [24/35] Canada Cambridge Academy
+2026-07-05 11:32:41,691 [INFO] processing.geocoder: Geocoding [25/35] Saint Lawrence School
+2026-07-05 11:32:41,692 [INFO] processing.geocoder: Geocoding [26/35] Canada Royal Arts High School
+2026-07-05 11:32:41,693 [INFO] processing.geocoder: Geocoding [27/35] Saint Johns Academy
+2026-07-05 11:32:41,694 [INFO] processing.geocoder: Geocoding [28/35] Amberson High School
+2026-07-05 11:32:41,694 [INFO] processing.geocoder: Geocoding [29/35] SHAWNIGAN LAKE SCH
+2026-07-05 11:32:41,695 [INFO] processing.geocoder: Geocoding [30/35] PARK VIEW EDUCATION CENTER
+2026-07-05 11:32:41,695 [INFO] processing.geocoder: Geocoding [31/35] LONDON INTERNATIONAL ACADEMY
+2026-07-05 11:32:41,696 [INFO] processing.geocoder: Geocoding [32/35] SuOn Academy
+2026-07-05 11:32:41,697 [INFO] processing.geocoder: Geocoding [33/35] MULGRAVE SCHOOL
+2026-07-05 11:32:41,697 [INFO] processing.geocoder: Geocoding [34/35] UT Preparatory Academy
+2026-07-05 11:32:41,698 [INFO] processing.geocoder: Geocoding [35/35] EDGE SCHOOL
+2026-07-05 11:32:41,738 [INFO] processing.exporter: Reports generated in datasets/sat/reports
+2026-07-05 11:32:57,812 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:32:58,091 [INFO] processing.geocoder: Geocoding [1/35] West Point Grey Academy
+2026-07-05 11:32:58,093 [INFO] processing.geocoder: Geocoding [2/35] Keystone School
+2026-07-05 11:32:58,094 [INFO] processing.geocoder: Geocoding [3/35] Dewey Institute
+2026-07-05 11:33:04,266 [INFO] processing.geocoder: Geocoding [4/35] Selwyn House School
+2026-07-05 11:33:04,268 [INFO] processing.geocoder: Geocoding [5/35] CANADA INTL COLLEGE
+2026-07-05 11:33:04,271 [INFO] processing.geocoder: Geocoding [6/35] Unionville International Academy
+2026-07-05 11:33:04,273 [INFO] processing.geocoder: Geocoding [7/35] Toronto STEM School
+2026-07-05 11:33:04,275 [INFO] processing.geocoder: Geocoding [8/35] MCCANNY SECONDARY SCH
+2026-07-05 11:33:04,276 [INFO] processing.geocoder: Geocoding [9/35] Brooklyn College
+2026-07-05 11:33:04,276 [INFO] processing.geocoder: Geocoding [10/35] QUEEN'S GROVE SCHOOL
+2026-07-05 11:33:04,278 [INFO] processing.geocoder: Geocoding [11/35] JOHNATHAN ACADEMY
+2026-07-05 11:33:04,280 [INFO] processing.geocoder: Geocoding [12/35] KAMLOOPS CHRISTIAN SCHOOL
+2026-07-05 11:33:04,281 [INFO] processing.geocoder: Geocoding [13/35] WALES COLLEGE
+2026-07-05 11:33:04,281 [INFO] processing.geocoder: Geocoding [14/35] Vancouver Independent School
+2026-07-05 11:33:04,282 [INFO] processing.geocoder: Geocoding [15/35] Franklin School
+2026-07-05 11:33:04,283 [INFO] processing.geocoder: Geocoding [16/35] JAYA INTERNATIONAL HIGH SCHOOL
+2026-07-05 11:33:14,247 [INFO] processing.geocoder: Geocoding [17/35] Grace Christian School
+2026-07-05 11:33:14,248 [INFO] processing.geocoder: Geocoding [18/35] Collingwood School-Morven
+2026-07-05 11:33:14,249 [INFO] processing.geocoder: Geocoding [19/35] LOWER CANADA COLL
+2026-07-05 11:33:14,250 [INFO] processing.geocoder: Geocoding [20/35] Gateway College
+2026-07-05 11:33:14,251 [INFO] processing.geocoder: Geocoding [21/35] City Vancouver Academy
+2026-07-05 11:33:14,252 [INFO] processing.geocoder: Geocoding [22/35] ELTON ACADEMY
+2026-07-05 11:33:14,253 [INFO] processing.geocoder: Geocoding [23/35] Lowell High School
+2026-07-05 11:33:14,254 [INFO] processing.geocoder: Geocoding [24/35] Canada Cambridge Academy
+2026-07-05 11:33:14,255 [INFO] processing.geocoder: Geocoding [25/35] Saint Lawrence School
+2026-07-05 11:33:14,256 [INFO] processing.geocoder: Geocoding [26/35] Canada Royal Arts High School
+2026-07-05 11:33:14,257 [INFO] processing.geocoder: Geocoding [27/35] Saint Johns Academy
+2026-07-05 11:33:14,257 [INFO] processing.geocoder: Geocoding [28/35] Amberson High School
+2026-07-05 11:33:14,258 [INFO] processing.geocoder: Geocoding [29/35] SHAWNIGAN LAKE SCH
+2026-07-05 11:33:14,258 [INFO] processing.geocoder: Geocoding [30/35] PARK VIEW EDUCATION CENTER
+2026-07-05 11:33:14,259 [INFO] processing.geocoder: Geocoding [31/35] LONDON INTERNATIONAL ACADEMY
+2026-07-05 11:33:14,260 [INFO] processing.geocoder: Geocoding [32/35] SuOn Academy
+2026-07-05 11:33:14,262 [INFO] processing.geocoder: Geocoding [33/35] MULGRAVE SCHOOL
+2026-07-05 11:33:14,262 [INFO] processing.geocoder: Geocoding [34/35] UT Preparatory Academy
+2026-07-05 11:33:14,263 [INFO] processing.geocoder: Geocoding [35/35] EDGE SCHOOL
+2026-07-05 11:33:14,301 [INFO] processing.exporter: Reports generated in datasets/sat/reports
+2026-07-05 11:33:37,934 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:34:35,895 [ERROR] __main__: Traceback (most recent call last):
+  File "main.py", line 530, in run_transform
+    schema_map = transformer.infer_schema(sample, centres)
+  File "/Users/shwetag/Projects/SAT centres workflow/sat_updater/processing/schema_transformer.py", line 80, in infer_schema
+    elif isinstance(sample_value, str):
+NameError: name 'sample_value' is not defined
+
+2026-07-05 11:36:42,563 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:37:02,213 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:37:37,331 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer: Schema map (9 fields):
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   id <- id
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   name <- name
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   type <- literal:sat_centre
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   city <- city
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   address <- address
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   gmaps_link <- literal:https://maps.google.com/?q=23.021537,72.580057
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   added_by <- literal:shauryagangrade
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   exam <- literal:SAT
+2026-07-05 11:37:41,364 [INFO] processing.schema_transformer:   valid_till <- literal:2026-11-07
+2026-07-05 11:37:41,371 [INFO] processing.schema_transformer: Saved 33 records to datasets/sat/generated/locations.json
+2026-07-05 11:43:24,528 [INFO] __main__: SAT Centre Updater started
+2026-07-05 11:43:50,810 [INFO] processing.schema_transformer: Schema map (11 fields):
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   id <- id
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   name <- name
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   type <- literal:sat_centre
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   city <- city
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   lat <- latitude
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   lng <- longitude
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   address <- address
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   gmaps_link <- literal:https://maps.google.com/?q=23.021537,72.580057
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   added_by <- literal:shauryagangrade
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   exam <- literal:SAT
+2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   valid_till <- literal:2026-11-07
+2026-07-05 11:43:50,817 [INFO] processing.schema_transformer: Saved 33 records to datasets/sat/generated/locations.json

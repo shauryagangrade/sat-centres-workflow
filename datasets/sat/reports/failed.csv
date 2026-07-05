@@ -1,0 +1,2 @@
+id,name,city,state,country,latitude,longitude,failure_reasons,failed_at
+3,C,,,Atlantis,10.0,10.0,wrong_country: Atlantis,country_check
