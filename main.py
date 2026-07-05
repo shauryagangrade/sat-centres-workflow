@@ -361,7 +361,7 @@ def run_normalize() -> None:
 
 
 def run_geocode(force: bool = False) -> None:
-    """Run the geocode step."""
+    """Run the geocode step with evidence-based verification."""
     from rich.console import Console
     from rich.progress import Progress, SpinnerColumn, TextColumn
 
@@ -378,7 +378,7 @@ def run_geocode(force: bool = False) -> None:
             console.print("[red]No centres found. Run normalize first.[/red]")
             return
 
-        console.print(f"[bold]Geocoding {len(centres)} centres...[/bold]")
+        console.print(f"[bold]Geocoding {len(centres)} centres (evidence-based)...[/bold]")
 
         geocoder = CentreGeocoder(force=force)
 
@@ -393,6 +393,30 @@ def run_geocode(force: bool = False) -> None:
 
         geocoded = sum(1 for r in results if r.geocoded)
         console.print(f"[green]Geocoded {geocoded}/{len(centres)} centres[/green]")
+
+        # Show verification state breakdown
+        states = {}
+        for r in results:
+            if r.best_decision:
+                state = r.best_decision.state.value
+                states[state] = states.get(state, 0) + 1
+
+        if states:
+            console.print("  Verification states:")
+            for state, count in sorted(states.items()):
+                console.print(f"    {state}: {count}")
+
+        # Show audit reports for first few results
+        for r in results[:3]:
+            if r.audit_entries:
+                console.print(f"\n  [bold]Audit: {r.centre.name}[/bold]")
+                for entry in r.audit_entries[:1]:
+                    console.print(f"    Decision: {entry.decision}")
+                    console.print(f"    Confidence: {entry.confidence:.1%}")
+                    console.print(f"    Positive: {', '.join(entry.positive_signals[:3])}")
+                    if entry.negative_signals:
+                        console.print(f"    Negative: {', '.join(entry.negative_signals[:3])}")
+
         normalizer.save(centres)
 
         stats = geocoder.stats

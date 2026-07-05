@@ -93,6 +93,35 @@ class ExportSettings:
 
 
 @dataclass
+class VerificationSettings:
+    """Evidence-based verification configuration."""
+
+    # Query all providers for consensus (not just first successful)
+    QUERY_ALL_PROVIDERS: bool = True
+    # Maximum candidates per provider per query
+    CANDIDATES_PER_PROVIDER: int = 5
+    # State classification thresholds
+    VERIFIED_THRESHOLD: float = 0.85
+    HIGHLY_LIKELY_THRESHOLD: float = 0.70
+    LIKELY_THRESHOLD: float = 0.55
+    NEEDS_REVIEW_THRESHOLD: float = 0.40
+    LOW_CONFIDENCE_THRESHOLD: float = 0.25
+    # Sigmoid calibration parameters
+    SIGMOID_STEEPNESS: float = 10.0
+    SIGMOID_MIDPOINT: float = 0.5
+    # Evidence category weights
+    TEXT_WEIGHT: float = 0.30
+    GEOGRAPHY_WEIGHT: float = 0.25
+    PROVIDER_WEIGHT: float = 0.20
+    PLACE_TYPE_WEIGHT: float = 0.15
+    HISTORICAL_WEIGHT: float = 0.10
+    # Maximum movement before flagging (km)
+    LARGE_MOVEMENT_THRESHOLD_KM: float = 50.0
+    # Provider agreement distance threshold (km)
+    PROVIDER_AGREEMENT_DISTANCE_KM: float = 5.0
+
+
+@dataclass
 class Settings:
     """Main settings container."""
 
@@ -102,6 +131,7 @@ class Settings:
     PATHS: PathSettings = field(default_factory=PathSettings)
     VALIDATION: ValidationSettings = field(default_factory=ValidationSettings)
     EXPORT: ExportSettings = field(default_factory=ExportSettings)
+    VERIFICATION: VerificationSettings = field(default_factory=VerificationSettings)
 
 
 # Global settings instance

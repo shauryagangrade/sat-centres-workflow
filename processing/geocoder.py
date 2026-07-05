@@ -1,8 +1,12 @@
 """
-SAT Centre Updater - Geocoder Module
+SAT Centre Updater - Geocoder Module (Evidence-Based Pipeline)
 
-Main geocoding orchestrator that ties together providers, scorer, query generator, and cache.
-Iterates through centres, generates queries, geocodes candidates, scores them, and picks the best match.
+Orchestrates the full pipeline:
+    Normalization -> Candidate Retrieval -> Evidence Verification -> Decision -> Output
+
+Uses the evidence-based verification system instead of simple fuzzy scoring.
+Each candidate accumulates independent evidence signals.
+The final confidence emerges from the combination of evidence.
 
 Usage:
     from processing.geocoder import CentreGeocoder
@@ -14,13 +18,18 @@ Usage:
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from cache.cache_manager import CacheManager
 from processing.normalizer import SatCentre
 from processing.query_generator import QueryGenerator
-from processing.scorer import CandidateScorer, GeocodeCandidate, ScoredCandidate
 from providers.provider_manager import ProviderManager
+from verification.confidence import ConfidenceCalculator, ConfidenceResult
+from verification.decision_engine import Decision, DecisionEngine, VerificationState
+from verification.fusion import EvidenceFusion, FusionScore
+from verification.models import CandidateEvidence, VerificationResult
+from verification.report import AuditEntry, AuditReport, AuditReportGenerator
+from verification.verifier import LocationVerifier
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +40,11 @@ class GeocodeResult:
 
     centre: SatCentre
     geocoded: bool = False
-    best_match: Optional[ScoredCandidate] = None
-    all_candidates: List[GeocodeCandidate] = field(default_factory=list)
+    best_candidate: Optional[CandidateEvidence] = None
+    best_decision: Optional[Decision] = None
+    verification_result: Optional[VerificationResult] = None
+    audit_entries: List[AuditEntry] = field(default_factory=list)
+    all_candidates: List[CandidateEvidence] = field(default_factory=list)
     queries_tried: List[str] = field(default_factory=list)
     provider_used: str = ""
     error: Optional[str] = None
@@ -40,15 +52,18 @@ class GeocodeResult:
 
 class CentreGeocoder:
     """
-    Orchestrates the geocoding pipeline for SAT centres.
+    Orchestrates the evidence-based geocoding pipeline.
 
-    Steps:
-    1. Check if centre already has coordinates and is cached
+    Pipeline stages:
+    1. Check if centre already has coordinates (skip unless force)
     2. Generate multiple search queries
-    3. Try each query against the provider chain
-    4. Score all candidates
-    5. Pick the best match if above confidence threshold
-    6. Update the centre with geocoded coordinates
+    3. Query ALL providers for candidate retrieval
+    4. Collect independent evidence for each candidate
+    5. Fuse evidence into unified scores
+    6. Calculate calibrated confidence
+    7. Decision engine classifies and selects best
+    8. Update centre with geocoded coordinates
+    9. Generate audit trail
     """
 
     def __init__(
@@ -65,19 +80,26 @@ class CentreGeocoder:
         """
         self.cache = cache or CacheManager()
         self.query_generator = QueryGenerator()
-        self.scorer = CandidateScorer()
         self.provider_manager = ProviderManager(cache=self.cache)
         self.force = force
+
+        # Evidence-based verification components
+        self.verifier = LocationVerifier()
+        self.decision_engine = DecisionEngine()
+        self.fusion = EvidenceFusion()
+        self.confidence_calc = ConfidenceCalculator()
+        self.report_generator = AuditReportGenerator()
 
         # Stats
         self._total = 0
         self._geocoded = 0
         self._cached = 0
         self._failed = 0
+        self._needs_review = 0
 
     def geocode_all(self, centres: List[SatCentre]) -> List[GeocodeResult]:
         """
-        Geocode a list of centres.
+        Geocode a list of centres using the evidence-based pipeline.
 
         Args:
             centres: List of SatCentre objects (may have existing coordinates).
@@ -89,6 +111,7 @@ class CentreGeocoder:
         self._geocoded = 0
         self._cached = 0
         self._failed = 0
+        self._needs_review = 0
 
         results: List[GeocodeResult] = []
         for i, centre in enumerate(centres):
@@ -107,13 +130,13 @@ class CentreGeocoder:
 
     def geocode_single(self, centre: SatCentre) -> GeocodeResult:
         """
-        Geocode a single centre.
+        Geocode a single centre through the full evidence-based pipeline.
 
         Args:
             centre: SatCentre to geocode.
 
         Returns:
-            GeocodeResult with geocoding outcome.
+            GeocodeResult with full verification evidence.
         """
         result = GeocodeResult(centre=centre)
 
@@ -123,11 +146,10 @@ class CentreGeocoder:
             and centre.latitude is not None
             and centre.longitude is not None
         ):
-            result.geocoded = False
             result.error = "cached: already has coordinates"
             return result
 
-        # Generate queries
+        # Stage 1: Generate queries
         queries = self.query_generator.generate(centre)
         result.queries_tried = queries
 
@@ -135,47 +157,117 @@ class CentreGeocoder:
             result.error = "no_queries_generated"
             return result
 
-        # Try each query
-        all_candidates: List[GeocodeCandidate] = []
+        # Stage 2: Retrieve candidates from ALL providers
+        provider_results: Dict[str, List[Dict[str, Any]]] = {}
+        all_candidate_dicts: List[Dict[str, Any]] = []
+
         for query in queries:
-            candidates = self.provider_manager.geocode(query, limit=5)
-            all_candidates.extend(candidates)
+            provider_raw = self.provider_manager.geocode_all_providers(
+                query, limit=5
+            )
+            for provider_name, candidates in provider_raw.items():
+                if provider_name not in provider_results:
+                    provider_results[provider_name] = []
+                for c in candidates:
+                    cand_dict = {
+                        "name": c.name,
+                        "address": c.address,
+                        "city": c.city,
+                        "state": c.state,
+                        "country": c.country,
+                        "latitude": c.latitude,
+                        "longitude": c.longitude,
+                        "confidence": c.confidence,
+                        "provider": c.provider,
+                        "raw": c.raw,
+                    }
+                    provider_results[provider_name].append(cand_dict)
+                    all_candidate_dicts.append(cand_dict)
 
-            if candidates:
-                break  # Stop at first successful query
+            if all_candidate_dicts:
+                break  # Stop at first query that yields results
 
-        if not all_candidates:
+        if not all_candidate_dicts:
             result.error = "no_candidates_found"
             return result
 
-        result.all_candidates = all_candidates
-
-        # Build reference for scoring
+        # Stage 3: Evidence-based verification
         reference = {
+            "id": centre.id,
             "name": centre.name,
             "address": centre.address,
             "city": centre.city,
             "state": centre.state,
             "country": centre.country,
+            "postal_code": centre.postal_code,
         }
 
-        # Score and pick best
-        best = self.scorer.best_candidate(reference, all_candidates)
+        # Build previous data from existing metadata
+        previous_data = None
+        if centre.metadata.get("latitude") is not None:
+            previous_data = {
+                "latitude": centre.metadata.get("latitude"),
+                "longitude": centre.metadata.get("longitude"),
+                "name": centre.metadata.get("name", centre.name),
+                "address": centre.metadata.get("address", centre.address),
+            }
 
-        if best is None:
+        verification = self.verifier.verify(
+            reference=reference,
+            candidates=all_candidate_dicts,
+            provider_results=provider_results,
+            previous_data=previous_data,
+        )
+
+        result.verification_result = verification
+        result.all_candidates = verification.candidates
+
+        # Stage 4: Decision engine
+        decision_result = self.decision_engine.decide(
+            evidence_list=verification.candidates,
+            reference_id=centre.id,
+            reference_name=centre.name,
+        )
+
+        if decision_result.best_candidate is None:
             result.error = "below_confidence_threshold"
             return result
 
-        result.best_match = best
-        result.provider_used = best.candidate.provider
+        result.best_candidate = decision_result.best_candidate
+        result.best_decision = decision_result.best_decision
+        result.provider_used = decision_result.best_candidate.provider
+
+        # Stage 5: Generate audit report
+        for evidence, decision in decision_result.all_decisions:
+            fusion_score = self.fusion.fuse(evidence)
+            confidence = self.confidence_calc.calculate(fusion_score, evidence)
+            entry = self.report_generator.generate_for_candidate(
+                evidence, fusion_score, confidence, decision.state.value
+            )
+            result.audit_entries.append(entry)
+
+        # Stage 6: Update centre with best match
+        best = decision_result.best_candidate
         result.geocoded = True
 
-        # Update centre coordinates
-        centre.latitude = best.candidate.latitude
-        centre.longitude = best.candidate.longitude
-        centre.metadata["confidence"] = best.score
-        centre.metadata["geocode_provider"] = best.candidate.provider
-        centre.metadata["geocode_breakdown"] = best.breakdown
+        centre.latitude = best.latitude
+        centre.longitude = best.longitude
+        centre.metadata["confidence"] = (
+            decision_result.best_decision.confidence
+            if decision_result.best_decision
+            else 0.0
+        )
+        centre.metadata["verification_state"] = (
+            decision_result.selected_state.value
+            if decision_result.selected_state
+            else "unknown"
+        )
+        centre.metadata["geocode_provider"] = best.provider
+        centre.metadata["evidence_summary"] = {
+            "positive_signals": best.positive_signals(),
+            "negative_signals": best.negative_signals(),
+            "provider": best.provider,
+        }
 
         return result
 
@@ -187,6 +279,7 @@ class CentreGeocoder:
             "geocoded": self._geocoded,
             "cached": self._cached,
             "failed": self._failed,
+            "needs_review": self._needs_review,
             "cache_hits": self.provider_manager.cache_hits,
             "provider_usage": self.provider_manager.stats,
         }

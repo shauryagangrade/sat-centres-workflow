@@ -33,14 +33,9 @@ class ProviderManager:
     """
     Manages multiple geocoding providers with fallback and caching.
 
-    Provider execution order:
-    1. Check cache
-    2. Nominatim
-    3. Photon
-    4. Geoapify
-    5. Overpass (fallback)
-
-    Stops at the first provider that returns results.
+    Supports two modes:
+    1. Fallback mode: stops at first provider with results
+    2. Multi-provider mode: queries all providers for consensus evidence
     """
 
     def __init__(self, cache: Optional[CacheManager] = None) -> None:
@@ -69,7 +64,7 @@ class ProviderManager:
 
     def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
         """
-        Geocode a query using the provider chain with caching.
+        Geocode a query using the provider chain with caching (fallback mode).
 
         Args:
             query: Search string.
@@ -122,6 +117,40 @@ class ProviderManager:
                 continue
 
         return []
+
+    def geocode_all_providers(
+        self, query: str, limit: int = 5
+    ) -> Dict[str, List[GeocodeCandidate]]:
+        """
+        Geocode a query against ALL providers for consensus evidence.
+
+        Unlike geocode(), this queries every provider and returns results
+        grouped by provider name. Used by the evidence-based verification
+        pipeline to assess provider consensus.
+
+        Args:
+            query: Search string.
+            limit: Maximum results per provider.
+
+        Returns:
+            Dict mapping provider name to its list of candidates.
+        """
+        all_results: Dict[str, List[GeocodeCandidate]] = {}
+
+        for provider_name in self._provider_order:
+            provider = self._providers.get(provider_name)
+            if provider is None:
+                continue
+
+            try:
+                results = provider.geocode(query, limit=limit)
+                if results:
+                    self._stats[provider_name] += 1
+                    all_results[provider_name] = results
+            except Exception:
+                continue
+
+        return all_results
 
     def geocode_batch(
         self, queries: Dict[str, List[str]], limit: int = 5

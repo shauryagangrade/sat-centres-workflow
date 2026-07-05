@@ -14,6 +14,7 @@ Usage:
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -78,8 +79,16 @@ class SchemaTransformer:
             if source is not None:
                 schema_map[user_field] = source
             elif isinstance(sample_value, str):
-                # Preserve literal string values from the sample
-                schema_map[user_field] = f"literal:{sample_value}"
+                # Check if it's a URL with coordinates that can be templated
+                template = self._detect_url_template(sample_value)
+                if template:
+                    # Store both template and original for fallback
+                    schema_map[user_field] = (
+                        f"url_template:{template}|||{sample_value}"
+                    )
+                else:
+                    # Preserve literal string values from the sample
+                    schema_map[user_field] = f"literal:{sample_value}"
 
         return schema_map
 
@@ -265,7 +274,7 @@ class SchemaTransformer:
         try:
             result: Dict[str, Any] = {}
             for user_field, source in schema_map.items():
-                value = self._resolve_source(source, flat_centre, flat_raw)
+                value = self._resolve_source(source, flat_centre, flat_raw, centre)
                 self._set_nested(result, user_field, value)
 
             return result
@@ -273,22 +282,133 @@ class SchemaTransformer:
             logger.warning(f"Failed to transform centre '{centre.name}': {e}")
             return None
 
+    def _detect_url_template(self, value: str) -> Optional[str]:
+        """
+        Detect if a string is a URL containing coordinates and convert to template.
+
+        Examples:
+            "https://maps.google.com/?q=12.9716,77.5946"
+            -> "https://maps.google.com/?q={lat},{lng}"
+
+            "https://example.com/place?lat=12.9716&lon=77.5946"
+            -> "https://example.com/place?lat={lat}&lon={lng}"
+
+        Args:
+            value: String value to check.
+
+        Returns:
+            URL template string with {lat}/{lng} placeholders, or None.
+        """
+        if not value:
+            return None
+
+        value = value.strip()
+
+        # Check if it looks like a URL
+        if not (value.startswith("http://") or value.startswith("https://")):
+            return None
+
+        # Pattern 1: coordinates as query param value (e.g., ?q=lat,lng)
+        # Matches: 12.9716,77.5946 or 12.9716%2C77.5946
+        coord_pattern = r"([\-]?\d+\.\d{2,8})[,%]2?C?([\-]?\d+\.\d{2,8})"
+        match = re.search(coord_pattern, value)
+        if match:
+            lat_str, lng_str = match.group(1), match.group(2)
+            # Verify these look like valid coordinates
+            try:
+                lat, lng = float(lat_str), float(lng_str)
+                if -90 <= lat <= 90 and -180 <= lng <= 180:
+                    # Use position-based replacement to avoid replacing
+                    # occurrences elsewhere in the URL
+                    start, end = match.start(), match.end()
+                    matched_text = match.group(0)
+                    # Determine separator between coords in the match
+                    sep_match = re.search(
+                        r"[,%]2?C?", matched_text[len(lat_str) :],
+                    )
+                    sep = sep_match.group(0) if sep_match else ","
+                    template = (
+                        value[:start]
+                        + f"{{lat}}{sep}{{lng}}"
+                        + value[end:]
+                    )
+                    return template
+            except ValueError:
+                pass
+
+        # Pattern 2: lat/lng as separate query params
+        # e.g., ?lat=12.9716&lon=77.5946 or ?latitude=12.9716&longitude=77.5946
+        lat_match = re.search(
+            r"[?&](?:lat|latitude)=([\-]?\d+\.\d{2,8})", value, re.IGNORECASE
+        )
+        lng_match = re.search(
+            r"[?&](?:lng|lon|longitude)=([\-]?\d+\.\d{2,8})", value, re.IGNORECASE
+        )
+        if lat_match and lng_match:
+            lat_str = lat_match.group(1)
+            lng_str = lng_match.group(1)
+            try:
+                lat, lng = float(lat_str), float(lng_str)
+                if -90 <= lat <= 90 and -180 <= lng <= 180:
+                    template = value
+                    # Replace the lat value (use longer match first to avoid partial replacement)
+                    lat_param = lat_match.group(0)
+                    lng_param = lng_match.group(0)
+                    lat_key = lat_param.split("=")[0]
+                    lng_key = lng_param.split("=")[0]
+                    # Use the matched position to replace only the coordinate values
+                    lat_start = lat_match.start()
+                    lat_end = lat_match.end()
+                    lng_start = lng_match.start()
+                    lng_end = lng_match.end()
+                    # Adjust lng position since we'll modify the string
+                    if lng_start > lat_start:
+                        lng_start += len(f"{lat_key}={{lat}}") - len(lat_param)
+                        lng_end += len(f"{lat_key}={{lat}}") - len(lat_param)
+                    template = (
+                        template[:lat_start]
+                        + f"{lat_key}={{lat}}"
+                        + template[lat_end:lng_start]
+                        + f"{lng_key}={{lng}}"
+                        + template[lng_end:]
+                    )
+                    return template
+            except ValueError:
+                pass
+
+        return None
+
     def _resolve_source(
-        self, source: str, flat_centre: Dict[str, Any], flat_raw: Dict[str, Any]
+        self,
+        source: str,
+        flat_centre: Dict[str, Any],
+        flat_raw: Dict[str, Any],
+        centre: Optional[SatCentre] = None,
     ) -> Any:
         """
         Resolve a source expression to its value.
 
         Args:
-            source: Source expression (field name, "raw.field_name", or "literal:value").
+            source: Source expression (field name, "raw.field_name", "literal:value",
+                    or "url_template:template").
             flat_centre: Flattened SatCentre dictionary.
             flat_raw: Flattened raw record dictionary.
+            centre: Optional SatCentre for coordinate substitution.
 
         Returns:
             The resolved value.
         """
         if source.startswith("literal:"):
             return source[8:]
+        if source.startswith("url_template:"):
+            parts = source[13:].split("|||", 1)
+            template = parts[0]
+            original = parts[1] if len(parts) > 1 else template
+            if centre and centre.latitude is not None and centre.longitude is not None:
+                return template.format(
+                    lat=centre.latitude, lng=centre.longitude
+                )
+            return original
         if source.startswith("raw."):
             raw_key = source[4:]
             return flat_raw.get(raw_key)
