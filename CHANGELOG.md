@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - .gitignore for Python projects
 - GitHub issue/PR templates and CI workflow
 - Dependabot configuration for automated dependency updates
+- Evidence-based verification pipeline (`verification/` module) replacing simple fuzzy scoring
+  - Independent evidence collectors: text match, geography, provider consensus, place type, history
+  - Sigmoid-calibrated confidence calculator with state classification (Verified → Low Confidence)
+  - Decision engine with audit trail generation
+  - Evidence fusion combining weighted signals into unified scores
+- Multi-provider candidate retrieval for consensus assessment (`geocode_all_providers`)
+- Interactive map viewer (`map/index.html`) using Leaflet.js + OpenStreetMap
+  - Drag & drop or file picker for JSON input
+  - Supports `latitude`/`longitude` and `lat`/`lng` field names
+  - Auto-loads `sample_centres.json` on startup
+- Schema Transformer URL template detection for coordinate placeholders
+- Centralised country normalisation utility (`utils/country_normalizer.py`)
+- Configuration section for verification settings (`VerificationSettings` in `config.py`)
+
+### Changed
+- Geocoding pipeline now queries ALL providers for consensus instead of stopping at first success
+- `GeocodeResult` dataclass updated with verification state, audit entries, and evidence summary
+- Centre metadata now includes `verification_state` and `evidence_summary`
+- README updated with verification pipeline docs, map viewer section, and project structure
 
 ---
 

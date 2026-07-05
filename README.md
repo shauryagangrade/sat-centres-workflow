@@ -147,6 +147,29 @@ If your target format looks like this:
 
 The transformer infers the mapping automatically and outputs all centres in that structure.
 
+## Map Viewer
+
+An interactive browser-based map for visualising geocoded centres. Open `map/index.html` in any browser — no server required.
+
+- **Auto-loads** `map/sample_centres.json` on startup (edit or replace this file with your data)
+- **Drag & drop** a JSON file onto the map, or use the file picker
+- Supports `latitude`/`longitude` **and** `lat`/`lng` field names
+- Each pin shows a popup with centre name, address, and coordinates
+
+## Evidence-Based Verification
+
+The geocoding pipeline uses an evidence-based verification system instead of simple fuzzy scoring. Each candidate accumulates independent evidence signals across five categories:
+
+| Evidence Category | Weight | Description |
+|-------------------|--------|-------------|
+| **Text Match** | 30% | Name/address similarity using fuzzy matching |
+| **Geography** | 25% | Coordinate proximity and country/region checks |
+| **Provider Consensus** | 20% | Agreement across Nominatim, Photon, Geoapify |
+| **Place Type** | 15% | Category verification (school, test centre) |
+| **Historical** | 10% | Consistency with previous geocoding results |
+
+Confidence is calibrated via a sigmoid function and classified into states: **Verified**, **Highly Likely**, **Likely**, **Needs Review**, or **Low Confidence**.
+
 ## Project Structure
 
 ```
@@ -163,7 +186,7 @@ sat_updater/
 │   ├── downloader.py        # HTTP downloader with retries
 │   ├── normalizer.py        # Data normalisation to SatCentre schema
 │   ├── query_generator.py   # Geocoding query generation
-│   ├── geocoder.py          # Main geocoding orchestrator
+│   ├── geocoder.py          # Evidence-based geocoding orchestrator
 │   ├── scorer.py            # Candidate scoring (RapidFuzz)
 │   ├── validator.py         # Centre validation rules
 │   ├── updater.py           # Dataset update/merge
@@ -175,13 +198,32 @@ sat_updater/
 │   ├── photon.py            # Komoot Photon
 │   ├── geoapify.py          # Geoapify API
 │   ├── overpass.py           # Overpass API (school search)
-│   └── provider_manager.py  # Provider orchestration & fallback
+│   └── provider_manager.py  # Provider orchestration & multi-provider consensus
+│
+├── verification/            # Evidence-based verification system
+│   ├── verifier.py          # Orchestrates evidence collection
+│   ├── decision_engine.py   # State classification & candidate selection
+│   ├── confidence.py        # Sigmoid-calibrated confidence scoring
+│   ├── fusion.py            # Evidence fusion into unified scores
+│   ├── report.py            # Audit trail generation
+│   ├── models.py            # Verification data models
+│   └── evidence/            # Independent evidence collectors
+│       ├── text.py          # Text matching signals
+│       ├── geography.py     # Geographic proximity signals
+│       ├── providers.py     # Provider consensus signals
+│       ├── place_type.py    # Category verification signals
+│       └── history.py       # Historical consistency signals
+│
+├── map/
+│   ├── index.html           # Interactive Leaflet.js map viewer
+│   └── sample_centres.json  # Sample data for the map
 │
 ├── cache/
 │   └── cache_manager.py     # SQLite-backed persistent cache
 │
 ├── utils/
 │   ├── helpers.py           # Shared utility functions
+│   ├── country_normalizer.py# Centralised country name normalisation
 │   └── logger.py            # Logging configuration
 │
 ├── datasets/
@@ -210,14 +252,14 @@ sat_updater/
 
 ## Geocoding Providers
 
-The system tries providers in order with automatic fallback:
+The system queries all providers for consensus evidence:
 
 1. **Nominatim** — OpenStreetMap (free, 1 req/s)
 2. **Photon** — Komoot (free, fast)
 3. **Geoapify** — Commercial (free tier: 3000/day)
 4. **Overpass** — School-specific search (fallback)
 
-Provider order and rate limits are configurable in `config.py`.
+Provider order, rate limits, and multi-provider mode are configurable in `config.py`.
 
 ## Caching
 
