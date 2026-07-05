@@ -13,8 +13,7 @@ Usage:
     # ['Legacy School Bangalore', 'Legacy International School Bangalore', ...]
 """
 
-import re
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Set
 
 from processing.normalizer import SatCentre
 

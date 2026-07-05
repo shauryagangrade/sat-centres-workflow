@@ -11,13 +11,11 @@ Usage:
     centres = connector.run(curl_command)
 """
 
-import json
 import logging
 from pathlib import Path
 from typing import List, Optional
 
-from config import settings
-from processing.curl_parser import CurlParser, CurlRequest
+from processing.curl_parser import CurlParser
 from processing.downloader import Downloader, DownloadResult
 from processing.normalizer import Normalizer, SatCentre
 

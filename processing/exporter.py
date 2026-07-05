@@ -9,12 +9,11 @@ Usage:
     exporter.generate_summary(geocode_results, validation_summary, update_summary)
 """
 
-import csv
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from config import settings
 

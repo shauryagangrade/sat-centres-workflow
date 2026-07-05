@@ -17,7 +17,7 @@ import shlex
 import json
 import urllib.parse
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 
 
 @dataclass

@@ -4,7 +4,6 @@ SAT Centre Updater - Validator Tests
 Unit tests for the centre validator module.
 """
 
-import pytest
 from processing.normalizer import SatCentre
 from processing.validator import CentreValidator
 

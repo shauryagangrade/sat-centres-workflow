@@ -83,8 +83,7 @@ def interactive_menu() -> None:
     """Display and handle the interactive Rich-powered menu."""
     try:
         from rich.console import Console
-        from rich.panel import Panel
-        from rich.prompt import Prompt, IntPrompt
+        from rich.prompt import Prompt
         from rich.table import Table
     except ImportError:
         print("Error: 'rich' package not installed. Run: pip install rich")
@@ -217,7 +216,7 @@ def run_transform_interactive() -> None:
             json_lines.append(line)
             brace_count += line.count("{") - line.count("}")
             # Auto-close if braces are balanced after pasting
-            if brace_count == 0 and json_lines and any("{" in l for l in json_lines):
+            if brace_count == 0 and json_lines and any("{" in item for item in json_lines):
                 break
         except EOFError:
             break
@@ -263,7 +262,7 @@ def run_download(curl_command: str = None, curl_file: str = None) -> None:
             return
 
         if result.success:
-            console.print(f"[green]Download successful![/green]")
+            console.print("[green]Download successful![/green]")
             console.print(f"  Status: HTTP {result.status_code}")
             console.print(f"  Format: {result.response_format}")
             console.print(f"  Size: {len(result.content):,} bytes")

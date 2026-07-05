@@ -4,7 +4,6 @@ SAT Centre Updater - Query Generator Tests
 Unit tests for the query generator module.
 """
 
-import pytest
 from processing.normalizer import SatCentre
 from processing.query_generator import QueryGenerator
 

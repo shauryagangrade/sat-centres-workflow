@@ -14,10 +14,8 @@ Usage:
 
 import logging
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
-from config import settings
 from processing.normalizer import SatCentre
 from processing.query_generator import QueryGenerator
 from processing.scorer import CandidateScorer, GeocodeCandidate, ScoredCandidate

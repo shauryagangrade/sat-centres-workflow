@@ -4,7 +4,6 @@ SAT Centre Updater - Scorer Tests
 Unit tests for the candidate scorer module.
 """
 
-import pytest
 from processing.scorer import CandidateScorer, GeocodeCandidate
 
 

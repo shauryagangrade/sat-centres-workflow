@@ -11,7 +11,6 @@ Usage:
     results = provider.geocode("Legacy School Bangalore India")
 """
 
-import re
 import time
 from typing import Any, Dict, List, Optional
 
@@ -115,9 +114,6 @@ class OverpassProvider:
         # Get coordinates
         lat = element.get("lat") or element.get("center", {}).get("lat", 0)
         lon = element.get("lon") or element.get("center", {}).get("lon", 0)
-
-        # Extract address components from OSM tags
-        addr = tags.get("addr:", {})
 
         return GeocodeCandidate(
             name=tags.get("name", ""),

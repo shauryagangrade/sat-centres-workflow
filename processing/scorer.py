@@ -13,9 +13,9 @@ Usage:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from rapidfuzz import fuzz, process
+from rapidfuzz import fuzz
 
 from config import settings
 

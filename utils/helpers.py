@@ -7,8 +7,6 @@ Usage:
     from utils.helpers import setup_directories, format_bytes
 """
 
-import os
-from pathlib import Path
 from typing import Any, Dict
 
 from config import settings

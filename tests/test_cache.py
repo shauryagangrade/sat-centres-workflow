@@ -4,7 +4,6 @@ SAT Centre Updater - Cache Manager Tests
 Unit tests for the SQLite-backed cache manager.
 """
 
-import pytest
 from cache.cache_manager import CacheManager
 
 
@@ -14,7 +13,6 @@ class TestCacheManager:
     def setup_method(self) -> None:
         """Set up test fixtures with a temporary cache."""
         import tempfile
-        import os
         self.tmp_dir = tempfile.mkdtemp()
         self.cache = CacheManager(cache_dir=__import__("pathlib").Path(self.tmp_dir))
 
