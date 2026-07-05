@@ -164,7 +164,10 @@ class CentreValidator:
                 return result
 
         # Check wrong country (normalize to canonical form first)
-        if centre.country and normalize_country(centre.country) not in self.valid_countries:
+        if (
+            centre.country
+            and normalize_country(centre.country) not in self.valid_countries
+        ):
             result.is_valid = False
             result.failure_reasons.append(f"wrong_country: {centre.country}")
             result.failed_at = "country_check"
