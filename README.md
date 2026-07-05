@@ -27,6 +27,8 @@ python main.py
 Paste cURL → Parse → Download → Normalize → Geocode → Validate → Update → Reports
 ```
 
+An optional **Schema Transform** step lets you reshape the output to any custom JSON structure.
+
 ## Usage
 
 ### Full Pipeline
@@ -35,6 +37,7 @@ Paste cURL → Parse → Download → Normalize → Geocode → Validate → Upd
 python main.py --full
 python main.py --full --curl-file curl.txt
 python main.py --full --force-geocode
+python main.py --full --transform --sample-json schema.json
 ```
 
 ### Individual Steps
@@ -47,6 +50,7 @@ python main.py --validate
 python main.py --update
 python main.py --reports
 python main.py --resume
+python main.py --transform --sample-json schema.json
 ```
 
 ### Interactive Menu
@@ -56,17 +60,18 @@ python main.py
 ```
 
 ```
-┌─ SAT Centre Updater ──────────────┐
-│ 1  Download SAT Data               │
-│ 2  Normalize                       │
-│ 3  Geocode                         │
-│ 4  Validate                        │
-│ 5  Update Dataset                  │
-│ 6  Reports                         │
-│ 7  Resume Failed                   │
-│ 8  Full Pipeline                   │
-│ 0  Exit                            │
-└────────────────────────────────────┘
+┌─ SAT Centre Updater ──────────────────────┐
+│ 1  Download SAT Data                       │
+│ 2  Normalize                               │
+│ 3  Geocode                                 │
+│ 4  Validate                                │
+│ 5  Update Dataset                          │
+│ 6  Reports                                 │
+│ 7  Resume Failed                           │
+│ 8  Full Pipeline                           │
+│ 9  Transform to Custom Schema              │
+│ 0  Exit                                    │
+└────────────────────────────────────────────┘
 ```
 
 ### Options
@@ -83,10 +88,56 @@ python main.py
 | `--update` | Update dataset only |
 | `--reports` | Generate reports only |
 | `--resume` | Resume failed centres |
+| `--transform` | Apply schema transformation after normalize |
+| `--sample-json <path>` | Path to a JSON file defining the target schema |
 | `--force-geocode` | Force re-geocoding of all centres |
 | `--confidence <float>` | Override confidence threshold |
 | `--workers <int>` | Override max geocoding workers |
 | `--log-level <level>` | Set log level (DEBUG/INFO/WARNING/ERROR) |
+
+## Schema Transformer
+
+The Schema Transformer lets you reshape the normalized centre data into any custom JSON structure. Paste a sample JSON excerpt showing the fields you need, and the system automatically infers which source fields to map.
+
+### How It Works
+
+1. Paste a sample JSON object with the keys you want (interactive mode, option 9)
+2. The system infers field mappings (handles aliases like `lat` → `latitude`, `centre_name` → `name`)
+3. Supports nested objects (e.g. `location.lat`, `contact.phone`)
+4. Preserves literal string values (e.g. `"type": "school"` stays as-is)
+5. Outputs a transformed `locations.json` file
+
+### CLI Usage
+
+```bash
+# Pass a sample JSON file
+python main.py --transform --sample-json schema.json
+
+# Run full pipeline with transform
+python main.py --full --transform --sample-json schema.json
+
+# Interactive: paste a sample JSON object
+python main.py  # then select option 9
+```
+
+### Example Schema
+
+If your target format looks like this:
+
+```json
+{
+  "location_name": "Legacy International School",
+  "type": "school",
+  "coordinates": {
+    "lat": 12.9716,
+    "lon": 77.5946
+  },
+  "city": "Bangalore",
+  "country": "India"
+}
+```
+
+The transformer infers the mapping automatically and outputs all centres in that structure.
 
 ## Project Structure
 
@@ -108,6 +159,7 @@ sat_updater/
 │   ├── scorer.py            # Candidate scoring (RapidFuzz)
 │   ├── validator.py         # Centre validation rules
 │   ├── updater.py           # Dataset update/merge
+│   ├── schema_transformer.py# Custom schema transformation
 │   └── exporter.py          # Report generation (MD, HTML)
 │
 ├── providers/
@@ -140,6 +192,7 @@ sat_updater/
 | File | Location | Description |
 |------|----------|-------------|
 | `sat_centres.json` | `datasets/sat/generated/` | Normalised centre data |
+| `locations.json` | `datasets/sat/generated/` | Schema-transformed data (when `--transform` is used) |
 | `sat_centre.json` | `datasets/sat/output/` | Final production-ready dataset |
 | `summary.md` | `datasets/sat/reports/` | Markdown summary report |
 | `summary.html` | `datasets/sat/reports/` | HTML summary report |
@@ -156,6 +209,19 @@ The system tries providers in order with automatic fallback:
 3. **Geoapify** — Commercial (free tier: 3000/day)
 4. **Overpass** — School-specific search (fallback)
 
+Provider order and rate limits are configurable in `config.py`.
+
+## Caching
+
+The system uses a SQLite-backed cache (`cache/cache.db`) with namespaced TTLs to avoid redundant API calls:
+
+| Namespace | Default TTL | Description |
+|-----------|-------------|-------------|
+| `geocode` | 24 hours | Geocoding results |
+| `download` | 1 hour | Raw download responses |
+| `http` | 1 hour | HTTP responses |
+| `manual` | 1 year | Manual review overrides |
+
 ## Configuration
 
 All settings are in `config.py`:
@@ -164,6 +230,7 @@ All settings are in `config.py`:
 - **Geocoding**: Provider order, confidence threshold, rate limits
 - **Cache**: Directories and TTL values
 - **Validation**: Country rules, coordinate bounds
+- **Export**: Output format and encoding
 - **Paths**: All file system paths
 
 ## Running Tests
