@@ -12,12 +12,12 @@ Usage:
     print(request.url, request.method)
 """
 
+import json
 import re
 import shlex
-import json
 import urllib.parse
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 
 @dataclass

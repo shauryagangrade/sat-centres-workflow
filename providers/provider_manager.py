@@ -16,10 +16,10 @@ from typing import Dict, List, Optional
 from cache.cache_manager import CacheManager
 from config import settings
 from processing.scorer import GeocodeCandidate
-from providers.nominatim import NominatimProvider
-from providers.photon import PhotonProvider
 from providers.geoapify import GeoapifyProvider
+from providers.nominatim import NominatimProvider
 from providers.overpass import OverpassProvider
+from providers.photon import PhotonProvider
 
 
 class ProviderManager:

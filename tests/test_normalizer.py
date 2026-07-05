@@ -5,6 +5,7 @@ Unit tests for the normalizer module.
 """
 
 import json
+
 from processing.normalizer import Normalizer, SatCentre
 
 

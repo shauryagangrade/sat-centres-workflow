@@ -5,6 +5,7 @@ Unit tests for the cURL parser module.
 """
 
 import pytest
+
 from processing.curl_parser import CurlParser
 
 

@@ -16,11 +16,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from cache.cache_manager import CacheManager
 from processing.normalizer import SatCentre
 from processing.query_generator import QueryGenerator
 from processing.scorer import CandidateScorer, GeocodeCandidate, ScoredCandidate
 from providers.provider_manager import ProviderManager
-from cache.cache_manager import CacheManager
 
 logger = logging.getLogger(__name__)
 

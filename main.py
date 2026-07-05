@@ -336,8 +336,8 @@ def run_normalize() -> None:
     console = Console()
 
     try:
-        from processing.normalizer import Normalizer
         from processing.downloader import Downloader
+        from processing.normalizer import Normalizer
 
         downloader = Downloader()
         normalizer = Normalizer()
@@ -365,8 +365,8 @@ def run_geocode(force: bool = False) -> None:
     console = Console()
 
     try:
-        from processing.normalizer import Normalizer
         from processing.geocoder import CentreGeocoder
+        from processing.normalizer import Normalizer
 
         normalizer = Normalizer()
         centres = normalizer.load()
@@ -487,7 +487,7 @@ def run_reports() -> None:
     console = Console()
 
     try:
-        from processing.exporter import ReportExporter, PipelineStats
+        from processing.exporter import PipelineStats, ReportExporter
 
         stats = PipelineStats(
             end_time=datetime.now(),
@@ -517,8 +517,8 @@ def run_resume() -> None:
     console = Console()
 
     try:
-        from processing.normalizer import Normalizer
         from processing.geocoder import CentreGeocoder
+        from processing.normalizer import Normalizer
 
         normalizer = Normalizer()
         centres = normalizer.load()
@@ -554,6 +554,7 @@ def run_resume() -> None:
 def run_transform(sample_json: dict = None, sample_json_file: str = None) -> None:
     """Run the schema transform step."""
     import json
+
     from rich.console import Console
 
     console = Console()

@@ -17,7 +17,6 @@ from typing import Dict, List, Set
 
 from processing.normalizer import SatCentre
 
-
 # Common abbreviations and noise words to strip for shorter queries
 NOISE_WORDS: List[str] = [
     "the",
