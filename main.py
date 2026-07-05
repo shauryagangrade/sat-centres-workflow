@@ -296,7 +296,9 @@ def run_transform_interactive() -> None:
 # ---- Pipeline Step Runners ----
 
 
-def run_download(curl_command: Optional[str] = None, curl_file: Optional[str] = None) -> None:
+def run_download(
+    curl_command: Optional[str] = None, curl_file: Optional[str] = None
+) -> None:
     """Run the download step."""
     from rich.console import Console
 
@@ -552,7 +554,9 @@ def run_resume() -> None:
         logging.getLogger(__name__).error(traceback.format_exc())
 
 
-def run_transform(sample_json: Optional[dict] = None, sample_json_file: Optional[str] = None) -> None:
+def run_transform(
+    sample_json: Optional[dict] = None, sample_json_file: Optional[str] = None
+) -> None:
     """Run the schema transform step."""
     import json
 
