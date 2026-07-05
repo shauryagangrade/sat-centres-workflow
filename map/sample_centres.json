@@ -1,0 +1,52 @@
+[
+  {
+    "id": "sample-001",
+    "name": "Delhi Public School",
+    "address": "10 Civil Lines",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "country": "India",
+    "latitude": 28.6736,
+    "longitude": 77.2297
+  },
+  {
+    "id": "sample-002",
+    "name": "Mumbai International School",
+    "address": "45 Bandra West",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "latitude": 19.0760,
+    "longitude": 72.8777
+  },
+  {
+    "id": "sample-003",
+    "name": "Bangalore Academy",
+    "address": "12 MG Road",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "country": "India",
+    "latitude": 12.9716,
+    "longitude": 77.5946
+  },
+  {
+    "id": "sample-004",
+    "name": "Singapore American School",
+    "address": "40 Woodlands Street 41",
+    "city": "Singapore",
+    "state": "North",
+    "country": "Singapore",
+    "latitude": 1.4382,
+    "longitude": 103.7891
+  },
+  {
+    "id": "sample-005",
+    "name": "Dubai International Academy",
+    "address": "Al Barsha South",
+    "city": "Dubai",
+    "state": "Dubai",
+    "country": "UAE",
+    "latitude": 25.0941,
+    "longitude": 55.1547
+  }
+]
