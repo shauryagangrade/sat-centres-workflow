@@ -93,18 +93,20 @@ class ProviderManager:
                     # Cache results
                     serializable = []
                     for r in results:
-                        serializable.append({
-                            "name": r.name,
-                            "address": r.address,
-                            "city": r.city,
-                            "state": r.state,
-                            "country": r.country,
-                            "latitude": r.latitude,
-                            "longitude": r.longitude,
-                            "confidence": r.confidence,
-                            "provider": r.provider,
-                            "raw": r.raw,
-                        })
+                        serializable.append(
+                            {
+                                "name": r.name,
+                                "address": r.address,
+                                "city": r.city,
+                                "state": r.state,
+                                "country": r.country,
+                                "latitude": r.latitude,
+                                "longitude": r.longitude,
+                                "confidence": r.confidence,
+                                "provider": r.provider,
+                                "raw": r.raw,
+                            }
+                        )
                     self.cache.set("geocode", cache_key, serializable)
 
                     return results
@@ -114,7 +116,9 @@ class ProviderManager:
 
         return []
 
-    def geocode_batch(self, queries: Dict[str, List[str]], limit: int = 5) -> Dict[str, List[GeocodeCandidate]]:
+    def geocode_batch(
+        self, queries: Dict[str, List[str]], limit: int = 5
+    ) -> Dict[str, List[GeocodeCandidate]]:
         """
         Geocode multiple queries with caching.
 

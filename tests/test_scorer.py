@@ -75,8 +75,12 @@ class TestCandidateScorer:
             "country": "India",
         }
         candidates = [
-            GeocodeCandidate(name="Random Place", city="Tokyo", country="Japan", confidence=0.9),
-            GeocodeCandidate(name="Legacy School", city="Bangalore", country="India", confidence=0.95),
+            GeocodeCandidate(
+                name="Random Place", city="Tokyo", country="Japan", confidence=0.9
+            ),
+            GeocodeCandidate(
+                name="Legacy School", city="Bangalore", country="India", confidence=0.95
+            ),
         ]
         best = self.scorer.best_candidate(reference, candidates)
 
@@ -91,7 +95,12 @@ class TestCandidateScorer:
             "country": "India",
         }
         candidates = [
-            GeocodeCandidate(name="Completely Different", city="Elsewhere", country="USA", confidence=0.1),
+            GeocodeCandidate(
+                name="Completely Different",
+                city="Elsewhere",
+                country="USA",
+                confidence=0.1,
+            ),
         ]
         best = self.scorer.best_candidate(reference, candidates)
         assert best is None
@@ -110,8 +119,12 @@ class TestCandidateScorer:
             "country": "India",
         }
         candidates = [
-            GeocodeCandidate(name="Test School", city="Mumbai", country="India", confidence=1.0),
-            GeocodeCandidate(name="Wrong School", city="Delhi", country="India", confidence=0.5),
+            GeocodeCandidate(
+                name="Test School", city="Mumbai", country="India", confidence=1.0
+            ),
+            GeocodeCandidate(
+                name="Wrong School", city="Delhi", country="India", confidence=0.5
+            ),
         ]
         ranked = self.scorer.rank_candidates(reference, candidates)
 

@@ -60,9 +60,7 @@ class CacheManager:
                 )
                 """
             )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_expires ON cache (expires_at)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_expires ON cache (expires_at)")
             conn.commit()
 
     def _connect(self) -> sqlite3.Connection:
@@ -106,7 +104,9 @@ class CacheManager:
             except (json.JSONDecodeError, TypeError):
                 return value_str
 
-    def set(self, namespace: str, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    def set(
+        self, namespace: str, key: str, value: Any, ttl: Optional[int] = None
+    ) -> None:
         """
         Store a value in the cache.
 

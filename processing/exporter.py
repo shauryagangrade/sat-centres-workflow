@@ -101,11 +101,14 @@ class ReportExporter:
         """Generate a Markdown summary report."""
         file_path = self.reports_dir / "summary.md"
 
-        provider_lines = "\n".join(
-            f"  - **{name}**: {count} calls"
-            for name, count in stats.provider_usage.items()
-            if count > 0
-        ) or "  - No provider calls"
+        provider_lines = (
+            "\n".join(
+                f"  - **{name}**: {count} calls"
+                for name, count in stats.provider_usage.items()
+                if count > 0
+            )
+            or "  - No provider calls"
+        )
 
         content = f"""# SAT Centre Update Report
 
@@ -159,16 +162,22 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         """Generate an HTML summary report."""
         file_path = self.reports_dir / "summary.html"
 
-        provider_rows = "\n".join(
-            f"<tr><td>{name}</td><td>{count}</td></tr>"
-            for name, count in stats.provider_usage.items()
-            if count > 0
-        ) or "<tr><td colspan='2'>No provider calls</td></tr>"
+        provider_rows = (
+            "\n".join(
+                f"<tr><td>{name}</td><td>{count}</td></tr>"
+                for name, count in stats.provider_usage.items()
+                if count > 0
+            )
+            or "<tr><td colspan='2'>No provider calls</td></tr>"
+        )
 
-        validation_rows = "\n".join(
-            f"<tr><td>{check}</td><td>{value}</td></tr>"
-            for check, value in stats.validation_summary.items()
-        ) or "<tr><td colspan='2'>No validation data</td></tr>"
+        validation_rows = (
+            "\n".join(
+                f"<tr><td>{check}</td><td>{value}</td></tr>"
+                for check, value in stats.validation_summary.items()
+            )
+            or "<tr><td colspan='2'>No validation data</td></tr>"
+        )
 
         content = f"""<!DOCTYPE html>
 <html lang="en">

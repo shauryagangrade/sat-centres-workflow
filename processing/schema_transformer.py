@@ -244,8 +244,11 @@ class SchemaTransformer:
         return None
 
     def _apply_schema(
-        self, centre: SatCentre, schema_map: Dict[str, Any],
-        flat_centre: Dict[str, Any], flat_raw: Dict[str, Any],
+        self,
+        centre: SatCentre,
+        schema_map: Dict[str, Any],
+        flat_centre: Dict[str, Any],
+        flat_raw: Dict[str, Any],
     ) -> Optional[Dict[str, Any]]:
         """
         Apply the schema mapping to a single centre.

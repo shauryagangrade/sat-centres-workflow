@@ -13,12 +13,14 @@ class TestCacheManager:
     def setup_method(self) -> None:
         """Set up test fixtures with a temporary cache."""
         import tempfile
+
         self.tmp_dir = tempfile.mkdtemp()
         self.cache = CacheManager(cache_dir=__import__("pathlib").Path(self.tmp_dir))
 
     def teardown_method(self) -> None:
         """Clean up temporary files."""
         import shutil
+
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def test_set_and_get(self) -> None:

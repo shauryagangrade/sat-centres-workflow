@@ -20,7 +20,15 @@ from processing.normalizer import SatCentre
 
 # Common abbreviations and noise words to strip for shorter queries
 NOISE_WORDS: List[str] = [
-    "the", "a", "an", "of", "for", "and", "at", "in", "on",
+    "the",
+    "a",
+    "an",
+    "of",
+    "for",
+    "and",
+    "at",
+    "in",
+    "on",
 ]
 
 
@@ -125,5 +133,3 @@ class QueryGenerator:
         words = name.split()
         cleaned = [w for w in words if w.lower() not in NOISE_WORDS]
         return " ".join(cleaned)
-
-

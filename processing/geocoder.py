@@ -118,7 +118,11 @@ class CentreGeocoder:
         result = GeocodeResult(centre=centre)
 
         # Skip if already geocoded (unless force)
-        if not self.force and centre.latitude is not None and centre.longitude is not None:
+        if (
+            not self.force
+            and centre.latitude is not None
+            and centre.longitude is not None
+        ):
             result.geocoded = False
             result.error = "cached: already has coordinates"
             return result

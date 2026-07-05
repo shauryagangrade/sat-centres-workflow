@@ -40,10 +40,12 @@ class GeoapifyProvider:
         self.api_key = api_key or settings.GEOCODING.GEOAPIFY_API_KEY
 
         self.session = requests.Session()
-        self.session.headers.update({
-            "User-Agent": settings.HTTP.USER_AGENT,
-            "Accept": "application/json",
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": settings.HTTP.USER_AGENT,
+                "Accept": "application/json",
+            }
+        )
         self._last_request_time: float = 0.0
         self._min_interval: float = 0.3
 
@@ -79,7 +81,9 @@ class GeoapifyProvider:
         }
 
         try:
-            response = self.session.get(self.BASE_URL, params=params, timeout=settings.HTTP.TIMEOUT)
+            response = self.session.get(
+                self.BASE_URL, params=params, timeout=settings.HTTP.TIMEOUT
+            )
             response.raise_for_status()
             data = response.json()
         except (requests.RequestException, ValueError):

@@ -64,8 +64,20 @@ class TestCentreValidator:
     def test_duplicate_id_fails(self) -> None:
         """Test that duplicate IDs cause failure."""
         centres = [
-            SatCentre(id="1", name="School A", country="India", latitude=12.97, longitude=77.59),
-            SatCentre(id="1", name="School B", country="India", latitude=19.07, longitude=72.87),
+            SatCentre(
+                id="1",
+                name="School A",
+                country="India",
+                latitude=12.97,
+                longitude=77.59,
+            ),
+            SatCentre(
+                id="1",
+                name="School B",
+                country="India",
+                latitude=19.07,
+                longitude=72.87,
+            ),
         ]
         valid, failed = self.validator.validate(centres)
 
@@ -76,8 +88,20 @@ class TestCentreValidator:
     def test_duplicate_coords_fails(self) -> None:
         """Test that duplicate coordinates cause failure."""
         centres = [
-            SatCentre(id="1", name="School A", country="India", latitude=12.97, longitude=77.59),
-            SatCentre(id="2", name="School B", country="India", latitude=12.97, longitude=77.59),
+            SatCentre(
+                id="1",
+                name="School A",
+                country="India",
+                latitude=12.97,
+                longitude=77.59,
+            ),
+            SatCentre(
+                id="2",
+                name="School B",
+                country="India",
+                latitude=12.97,
+                longitude=77.59,
+            ),
         ]
         valid, failed = self.validator.validate(centres)
 
@@ -97,9 +121,15 @@ class TestCentreValidator:
     def test_get_summary(self) -> None:
         """Test summary generation."""
         centres = [
-            SatCentre(id="1", name="A", country="India", latitude=12.97, longitude=77.59),
-            SatCentre(id="2", name="B", country="India", latitude=19.07, longitude=72.87),
-            SatCentre(id="3", name="C", country="Atlantis", latitude=10.0, longitude=10.0),
+            SatCentre(
+                id="1", name="A", country="India", latitude=12.97, longitude=77.59
+            ),
+            SatCentre(
+                id="2", name="B", country="India", latitude=19.07, longitude=72.87
+            ),
+            SatCentre(
+                id="3", name="C", country="Atlantis", latitude=10.0, longitude=10.0
+            ),
         ]
         valid, failed = self.validator.validate(centres)
         summary = self.validator.get_summary(3, valid, failed)

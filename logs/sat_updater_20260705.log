@@ -262,3 +262,11 @@ NameError: name 'sample_value' is not defined
 2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   exam <- literal:SAT
 2026-07-05 11:43:50,811 [INFO] processing.schema_transformer:   valid_till <- literal:2026-11-07
 2026-07-05 11:43:50,817 [INFO] processing.schema_transformer: Saved 33 records to datasets/sat/generated/locations.json
+2026-07-05 12:33:12,466 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:33:22,335 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:33:37,409 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:33:37,441 [INFO] processing.exporter: Reports generated in datasets/sat/reports
+2026-07-05 12:35:10,722 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:35:15,321 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:35:19,863 [INFO] __main__: SAT Centre Updater started
+2026-07-05 12:35:19,901 [INFO] processing.exporter: Reports generated in datasets/sat/reports

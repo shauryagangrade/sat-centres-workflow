@@ -17,6 +17,7 @@ from typing import List, Optional
 @dataclass
 class HTTPSettings:
     """HTTP request configuration."""
+
     TIMEOUT: int = 30
     RETRY_COUNT: int = 3
     RETRY_DELAY: float = 1.0
@@ -28,7 +29,10 @@ class HTTPSettings:
 @dataclass
 class GeocodingSettings:
     """Geocoding provider configuration."""
-    PROVIDER_ORDER: List[str] = field(default_factory=lambda: ["nominatim", "photon", "geoapify", "overpass"])
+
+    PROVIDER_ORDER: List[str] = field(
+        default_factory=lambda: ["nominatim", "photon", "geoapify", "overpass"]
+    )
     CONFIDENCE_THRESHOLD: float = 0.6
     MAX_WORKERS: int = 5
     RATE_LIMIT_DELAY: float = 1.0
@@ -38,6 +42,7 @@ class GeocodingSettings:
 @dataclass
 class CacheSettings:
     """Cache configuration."""
+
     CACHE_DIR: Path = Path("cache")
     HTTP_CACHE_EXPIRY: int = 3600
     GEOCODE_CACHE_EXPIRY: int = 86400
@@ -47,6 +52,7 @@ class CacheSettings:
 @dataclass
 class PathSettings:
     """File path configuration."""
+
     BASE_DIR: Path = Path(__file__).parent
     RAW_DIR: Path = Path("datasets/sat/raw")
     GENERATED_DIR: Path = Path("datasets/sat/generated")
@@ -59,7 +65,18 @@ class PathSettings:
 @dataclass
 class ValidationSettings:
     """Validation rules configuration."""
-    VALID_COUNTRIES: List[str] = field(default_factory=lambda: ["INDIA", "US", "USA", "CANADA", "UK", "UAE", "SINGAPORE"])
+
+    VALID_COUNTRIES: List[str] = field(
+        default_factory=lambda: [
+            "INDIA",
+            "US",
+            "USA",
+            "CANADA",
+            "UK",
+            "UAE",
+            "SINGAPORE",
+        ]
+    )
     MAX_LATITUDE: float = 90.0
     MIN_LATITUDE: float = -90.0
     MAX_LONGITUDE: float = 180.0
@@ -70,6 +87,7 @@ class ValidationSettings:
 @dataclass
 class ExportSettings:
     """Export configuration."""
+
     EXPORT_FORMAT: str = "json"
     PRETTY_PRINT: bool = True
     ENCODING: str = "utf-8"
@@ -78,6 +96,7 @@ class ExportSettings:
 @dataclass
 class Settings:
     """Main settings container."""
+
     HTTP: HTTPSettings = field(default_factory=HTTPSettings)
     GEOCODING: GeocodingSettings = field(default_factory=GeocodingSettings)
     CACHE: CacheSettings = field(default_factory=CacheSettings)

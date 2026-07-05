@@ -91,7 +91,9 @@ class CentreValidator:
         }
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
-    def validate(self, centres: List[SatCentre]) -> Tuple[List[SatCentre], List[ValidationResult]]:
+    def validate(
+        self, centres: List[SatCentre]
+    ) -> Tuple[List[SatCentre], List[ValidationResult]]:
         """
         Validate a list of centres.
 
@@ -184,7 +186,10 @@ class CentreValidator:
 
         # Check low confidence from metadata
         confidence = centre.metadata.get("confidence", 1.0)
-        if isinstance(confidence, (int, float)) and confidence < self.confidence_threshold:
+        if (
+            isinstance(confidence, (int, float))
+            and confidence < self.confidence_threshold
+        ):
             result.is_valid = False
             result.failure_reasons.append(f"low_confidence: {confidence:.2f}")
             result.failed_at = "confidence_check"
@@ -226,27 +231,40 @@ class CentreValidator:
 
         with open(file_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow([
-                "id", "name", "city", "state", "country",
-                "latitude", "longitude", "failure_reasons", "failed_at"
-            ])
+            writer.writerow(
+                [
+                    "id",
+                    "name",
+                    "city",
+                    "state",
+                    "country",
+                    "latitude",
+                    "longitude",
+                    "failure_reasons",
+                    "failed_at",
+                ]
+            )
             for result in failed:
                 c = result.centre
-                writer.writerow([
-                    c.id,
-                    c.name,
-                    c.city,
-                    c.state,
-                    c.country,
-                    c.latitude,
-                    c.longitude,
-                    "; ".join(result.failure_reasons),
-                    result.failed_at,
-                ])
+                writer.writerow(
+                    [
+                        c.id,
+                        c.name,
+                        c.city,
+                        c.state,
+                        c.country,
+                        c.latitude,
+                        c.longitude,
+                        "; ".join(result.failure_reasons),
+                        result.failed_at,
+                    ]
+                )
 
         return file_path
 
-    def get_summary(self, total: int, valid: List[SatCentre], failed: List[ValidationResult]) -> ValidationSummary:
+    def get_summary(
+        self, total: int, valid: List[SatCentre], failed: List[ValidationResult]
+    ) -> ValidationSummary:
         """
         Build a summary of validation results.
 

@@ -40,9 +40,11 @@ class OverpassProvider:
         self.overpass_url = overpass_url or self.DEFAULT_OVERPASS_URL
 
         self.session = requests.Session()
-        self.session.headers.update({
-            "User-Agent": settings.HTTP.USER_AGENT,
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": settings.HTTP.USER_AGENT,
+            }
+        )
         self._last_request_time: float = 0.0
         self._min_interval: float = 5.0  # Overpass rate limits are stricter
 
@@ -140,10 +142,18 @@ class OverpassProvider:
     def _country_from_code(self, code: str) -> str:
         """Convert ISO 3166-1 alpha-2 country code to full name."""
         code_map = {
-            "IN": "India", "US": "United States", "GB": "United Kingdom",
-            "CA": "Canada", "AE": "United Arab Emirates", "SG": "Singapore",
-            "AU": "Australia", "DE": "Germany", "FR": "France",
-            "JP": "Japan", "KR": "South Korea", "CN": "China",
+            "IN": "India",
+            "US": "United States",
+            "GB": "United Kingdom",
+            "CA": "Canada",
+            "AE": "United Arab Emirates",
+            "SG": "Singapore",
+            "AU": "Australia",
+            "DE": "Germany",
+            "FR": "France",
+            "JP": "Japan",
+            "KR": "South Korea",
+            "CN": "China",
         }
         return code_map.get(code.upper(), code)
 

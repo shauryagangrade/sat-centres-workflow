@@ -75,7 +75,9 @@ class CandidateScorer:
         self.weights = weights or DEFAULT_WEIGHTS.copy()
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
-    def score(self, reference: Dict[str, str], candidate: GeocodeCandidate) -> ScoredCandidate:
+    def score(
+        self, reference: Dict[str, str], candidate: GeocodeCandidate
+    ) -> ScoredCandidate:
         """
         Score a single candidate against a reference dictionary.
 
@@ -212,8 +214,22 @@ class CandidateScorer:
         # Common country name mappings
         aliases = {
             "india": ["in", "republic of india", "bharat"],
-            "us": ["usa", "united states", "united states of america", "u.s.", "u.s.a.", "us"],
-            "usa": ["us", "united states", "united states of america", "u.s.", "u.s.a.", "us"],
+            "us": [
+                "usa",
+                "united states",
+                "united states of america",
+                "u.s.",
+                "u.s.a.",
+                "us",
+            ],
+            "usa": [
+                "us",
+                "united states",
+                "united states of america",
+                "u.s.",
+                "u.s.a.",
+                "us",
+            ],
             "uk": ["united kingdom", "gb", "great britain", "u.k.", "england"],
             "canada": ["ca", "dominion of canada"],
             "uae": ["united arab emirates", "ae", "dubai", "abu dhabi"],

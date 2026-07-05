@@ -1,6 +1,6 @@
 # SAT Centre Update Report
 
-Generated: 2026-07-05 11:33:14
+Generated: 2026-07-05 12:35:19
 
 ## Pipeline Summary
 
@@ -16,7 +16,7 @@ Generated: 2026-07-05 11:33:14
 
 | Metric | Count |
 |--------|-------|
-| Total Centres | 33 |
+| Total Centres | 0 |
 | New Centres | 0 |
 | Updated Centres | 0 |
 | Removed Centres | 0 |

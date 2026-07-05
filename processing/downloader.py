@@ -332,7 +332,9 @@ class Downloader:
         Returns:
             Path to the latest raw file, or None if no files exist.
         """
-        raw_files = sorted(self.raw_dir.glob("sat_raw_*"), key=lambda p: p.stat().st_mtime)
+        raw_files = sorted(
+            self.raw_dir.glob("sat_raw_*"), key=lambda p: p.stat().st_mtime
+        )
         return raw_files[-1] if raw_files else None
 
     def list_raw_files(self) -> List[Path]:
@@ -342,4 +344,8 @@ class Downloader:
         Returns:
             List of Path objects for raw files.
         """
-        return sorted(self.raw_dir.glob("sat_raw_*"), key=lambda p: p.stat().st_mtime, reverse=True)
+        return sorted(
+            self.raw_dir.glob("sat_raw_*"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )

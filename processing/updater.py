@@ -122,9 +122,7 @@ class DatasetUpdater:
 
         return merged, summary
 
-    def _merge_centre(
-        self, old: SatCentre, new: SatCentre
-    ) -> Optional[Dict[str, Any]]:
+    def _merge_centre(self, old: SatCentre, new: SatCentre) -> Optional[Dict[str, Any]]:
         """
         Merge location fields from new into old, preserving other fields.
 
@@ -177,19 +175,19 @@ class DatasetUpdater:
                     if field_name in ("id", "name"):
                         continue
                     if isinstance(vals, dict):
-                        writer.writerow([
-                            centre_id,
-                            name,
-                            field_name,
-                            vals.get("old", ""),
-                            vals.get("new", ""),
-                        ])
+                        writer.writerow(
+                            [
+                                centre_id,
+                                name,
+                                field_name,
+                                vals.get("old", ""),
+                                vals.get("new", ""),
+                            ]
+                        )
 
         return file_path
 
-    def save(
-        self, centres: List[SatCentre], filename: str = "sat_centre.json"
-    ) -> Path:
+    def save(self, centres: List[SatCentre], filename: str = "sat_centre.json") -> Path:
         """
         Save the final dataset to JSON.
 
@@ -262,9 +260,21 @@ class DatasetUpdater:
         file_path = self.reports_dir / "duplicates.csv"
         with open(file_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(["id", "name", "city", "state", "country", "latitude", "longitude"])
+            writer.writerow(
+                ["id", "name", "city", "state", "country", "latitude", "longitude"]
+            )
             for coords, centre_list in duplicates.items():
                 for c in centre_list:
-                    writer.writerow([c.id, c.name, c.city, c.state, c.country, c.latitude, c.longitude])
+                    writer.writerow(
+                        [
+                            c.id,
+                            c.name,
+                            c.city,
+                            c.state,
+                            c.country,
+                            c.latitude,
+                            c.longitude,
+                        ]
+                    )
 
         return file_path

@@ -361,7 +361,9 @@ class Normalizer:
         except (ValueError, TypeError):
             return None
 
-    def save(self, centres: List[SatCentre], filename: str = "sat_centres.json") -> Path:
+    def save(
+        self, centres: List[SatCentre], filename: str = "sat_centres.json"
+    ) -> Path:
         """
         Save normalised centres to a JSON file.
 

@@ -101,10 +101,12 @@ class TestNormalizer:
 
     def test_normalize_json_string(self) -> None:
         """Test normalizing a JSON string."""
-        json_str = json.dumps([
-            {"name": "School A", "city": "Delhi", "country": "India"},
-            {"name": "School B", "city": "Pune", "country": "India"},
-        ])
+        json_str = json.dumps(
+            [
+                {"name": "School A", "city": "Delhi", "country": "India"},
+                {"name": "School B", "city": "Pune", "country": "India"},
+            ]
+        )
         centres = self.normalizer.normalize(json_str)
 
         assert len(centres) == 2
@@ -137,6 +139,7 @@ class TestNormalizer:
     def test_save_and_load(self, tmp_path) -> None:
         """Test saving and loading centres."""
         from config import settings
+
         original_dir = settings.PATHS.GENERATED_DIR
         settings.PATHS.GENERATED_DIR = tmp_path
 

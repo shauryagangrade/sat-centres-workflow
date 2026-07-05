@@ -25,6 +25,7 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
+
 # Setup logging before imports that might fail
 def setup_logging(log_level: str = "INFO") -> None:
     """Configure logging to file and console."""
@@ -54,27 +55,61 @@ def get_parser() -> argparse.ArgumentParser:
 
     # Pipeline modes
     mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument("--full", action="store_true", help="Run the full pipeline end-to-end")
-    mode_group.add_argument("--download", action="store_true", help="Download SAT data only")
-    mode_group.add_argument("--normalize", action="store_true", help="Normalize downloaded data only")
-    mode_group.add_argument("--geocode", action="store_true", help="Geocode centres only")
-    mode_group.add_argument("--validate", action="store_true", help="Validate geocoded centres only")
-    mode_group.add_argument("--update", action="store_true", help="Update the final dataset only")
-    mode_group.add_argument("--reports", action="store_true", help="Generate reports only")
-    mode_group.add_argument("--resume", action="store_true", help="Resume failed centres from previous run")
+    mode_group.add_argument(
+        "--full", action="store_true", help="Run the full pipeline end-to-end"
+    )
+    mode_group.add_argument(
+        "--download", action="store_true", help="Download SAT data only"
+    )
+    mode_group.add_argument(
+        "--normalize", action="store_true", help="Normalize downloaded data only"
+    )
+    mode_group.add_argument(
+        "--geocode", action="store_true", help="Geocode centres only"
+    )
+    mode_group.add_argument(
+        "--validate", action="store_true", help="Validate geocoded centres only"
+    )
+    mode_group.add_argument(
+        "--update", action="store_true", help="Update the final dataset only"
+    )
+    mode_group.add_argument(
+        "--reports", action="store_true", help="Generate reports only"
+    )
+    mode_group.add_argument(
+        "--resume", action="store_true", help="Resume failed centres from previous run"
+    )
 
     # cURL input
     curl_group = parser.add_mutually_exclusive_group()
-    curl_group.add_argument("--paste-curl", action="store_true", help="Paste cURL interactively")
-    curl_group.add_argument("--curl-file", type=str, help="Path to file containing cURL command")
+    curl_group.add_argument(
+        "--paste-curl", action="store_true", help="Paste cURL interactively"
+    )
+    curl_group.add_argument(
+        "--curl-file", type=str, help="Path to file containing cURL command"
+    )
 
     # Options
-    parser.add_argument("--force-geocode", action="store_true", help="Force re-geocoding of all centres")
-    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
-    parser.add_argument("--confidence", type=float, help="Override confidence threshold")
+    parser.add_argument(
+        "--force-geocode", action="store_true", help="Force re-geocoding of all centres"
+    )
+    parser.add_argument(
+        "--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"]
+    )
+    parser.add_argument(
+        "--confidence", type=float, help="Override confidence threshold"
+    )
     parser.add_argument("--workers", type=int, help="Override max geocoding workers")
-    parser.add_argument("--transform", action="store_true", help="Apply schema transformation after normalize")
-    parser.add_argument("--sample-json", type=str, help="Path to file containing sample JSON for schema transformation")
+    parser.add_argument(
+        "--transform",
+        action="store_true",
+        help="Apply schema transformation after normalize",
+    )
+    parser.add_argument(
+        "--sample-json",
+        type=str,
+        help="Path to file containing sample JSON for schema transformation",
+    )
 
     return parser
 
@@ -106,7 +141,9 @@ def interactive_menu() -> None:
 
     while True:
         console.print()
-        table = Table(title="SAT Centre Updater", show_header=False, border_style="cyan")
+        table = Table(
+            title="SAT Centre Updater", show_header=False, border_style="cyan"
+        )
         table.add_column("Option", style="bold yellow", width=8)
         table.add_column("Action", style="white")
 
@@ -154,8 +191,12 @@ def run_download_interactive() -> None:
         return
 
     console = Console()
-    console.print(Panel("[bold]Paste your browser cURL command below[/bold]", border_style="cyan"))
-    console.print("[dim]Tip: Copy from Chrome DevTools Network tab > Right-click request > Copy as cURL[/dim]\n")
+    console.print(
+        Panel("[bold]Paste your browser cURL command below[/bold]", border_style="cyan")
+    )
+    console.print(
+        "[dim]Tip: Copy from Chrome DevTools Network tab > Right-click request > Copy as cURL[/dim]\n"
+    )
 
     curl_lines = []
     console.print("[dim]Paste cURL command (press Enter twice when done):[/dim]")
@@ -198,12 +239,14 @@ def run_transform_interactive() -> None:
         return
 
     console = Console()
-    console.print(Panel(
-        "[bold]Paste a sample JSON excerpt showing the fields you want[/bold]\n"
-        "[dim]The system will infer which fields to extract from the data[/dim]\n"
-        "[dim]Tip: Paste a single JSON object with the keys you need[/dim]",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel(
+            "[bold]Paste a sample JSON excerpt showing the fields you want[/bold]\n"
+            "[dim]The system will infer which fields to extract from the data[/dim]\n"
+            "[dim]Tip: Paste a single JSON object with the keys you need[/dim]",
+            border_style="cyan",
+        )
+    )
 
     json_lines = []
     console.print("[dim]Paste sample JSON (press Enter twice when done):[/dim]")
@@ -216,7 +259,11 @@ def run_transform_interactive() -> None:
             json_lines.append(line)
             brace_count += line.count("{") - line.count("}")
             # Auto-close if braces are balanced after pasting
-            if brace_count == 0 and json_lines and any("{" in item for item in json_lines):
+            if (
+                brace_count == 0
+                and json_lines
+                and any("{" in item for item in json_lines)
+            ):
                 break
         except EOFError:
             break
@@ -229,13 +276,16 @@ def run_transform_interactive() -> None:
 
     try:
         import json
+
         sample = json.loads(sample_str)
     except json.JSONDecodeError as e:
         console.print(f"[red]Invalid JSON: {e}[/red]")
         return
 
     if not isinstance(sample, dict):
-        console.print("[red]Sample must be a JSON object, not a list or primitive.[/red]")
+        console.print(
+            "[red]Sample must be a JSON object, not a list or primitive.[/red]"
+        )
         return
 
     console.print("\n[bold]Processing schema transformation...[/bold]\n")
@@ -244,13 +294,16 @@ def run_transform_interactive() -> None:
 
 # ---- Pipeline Step Runners ----
 
+
 def run_download(curl_command: str = None, curl_file: str = None) -> None:
     """Run the download step."""
     from rich.console import Console
+
     console = Console()
 
     try:
         from connectors.sat_connector import SatConnector
+
         connector = SatConnector()
 
         if curl_command:
@@ -258,7 +311,9 @@ def run_download(curl_command: str = None, curl_file: str = None) -> None:
         elif curl_file:
             result = connector.download_only(curl_file=curl_file)
         else:
-            console.print("[red]No cURL source provided. Use --paste-curl or --curl-file.[/red]")
+            console.print(
+                "[red]No cURL source provided. Use --paste-curl or --curl-file.[/red]"
+            )
             return
 
         if result.success:
@@ -277,6 +332,7 @@ def run_download(curl_command: str = None, curl_file: str = None) -> None:
 def run_normalize() -> None:
     """Run the normalize step."""
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -305,6 +361,7 @@ def run_geocode(force: bool = False) -> None:
     """Run the geocode step."""
     from rich.console import Console
     from rich.progress import Progress, SpinnerColumn, TextColumn
+
     console = Console()
 
     try:
@@ -348,6 +405,7 @@ def run_geocode(force: bool = False) -> None:
 def run_validate() -> None:
     """Run the validate step."""
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -385,6 +443,7 @@ def run_validate() -> None:
 def run_update() -> None:
     """Run the update step."""
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -401,7 +460,9 @@ def run_update() -> None:
         updater = DatasetUpdater()
         existing = updater.load_existing()
 
-        console.print(f"[bold]Updating dataset: {len(existing)} existing + {len(new_centres)} new[/bold]")
+        console.print(
+            f"[bold]Updating dataset: {len(existing)} existing + {len(new_centres)} new[/bold]"
+        )
         merged, summary = updater.update(existing, new_centres)
         path = updater.save(merged)
 
@@ -422,6 +483,7 @@ def run_update() -> None:
 def run_reports() -> None:
     """Run the reports step."""
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -433,6 +495,7 @@ def run_reports() -> None:
 
         # Try to populate stats from existing data
         from processing.normalizer import Normalizer
+
         normalizer = Normalizer()
         centres = normalizer.load()
         stats.total_centres = len(centres)
@@ -450,6 +513,7 @@ def run_reports() -> None:
 def run_resume() -> None:
     """Resume failed centres from a previous run."""
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -476,7 +540,9 @@ def run_resume() -> None:
         results = geocoder.geocode_all(ungeocoded)
 
         geocoded = sum(1 for r in results if r.geocoded)
-        console.print(f"[green]Geocoded {geocoded}/{len(ungeocoded)} failed centres[/green]")
+        console.print(
+            f"[green]Geocoded {geocoded}/{len(ungeocoded)} failed centres[/green]"
+        )
         normalizer.save(centres)
 
         geocoder.close()
@@ -489,6 +555,7 @@ def run_transform(sample_json: dict = None, sample_json_file: str = None) -> Non
     """Run the schema transform step."""
     import json
     from rich.console import Console
+
     console = Console()
 
     try:
@@ -513,7 +580,9 @@ def run_transform(sample_json: dict = None, sample_json_file: str = None) -> Non
                 return
             sample = json.loads(sample_path.read_text(encoding="utf-8"))
         else:
-            console.print("[red]No sample JSON provided. Use --sample-json or paste interactively.[/red]")
+            console.print(
+                "[red]No sample JSON provided. Use --sample-json or paste interactively.[/red]"
+            )
             return
 
         if not isinstance(sample, dict):
@@ -530,6 +599,7 @@ def run_transform(sample_json: dict = None, sample_json_file: str = None) -> Non
 
         # Show inferred mapping
         from rich.table import Table
+
         table = Table(title="Inferred Field Mappings", border_style="cyan")
         table.add_column("Output Field", style="bold yellow")
         table.add_column("Source", style="green")
@@ -543,7 +613,9 @@ def run_transform(sample_json: dict = None, sample_json_file: str = None) -> Non
         # Transform and save
         transformed = transformer.transform(centres, sample, schema_map)
         path = transformer.save(transformed)
-        console.print(f"[green]Transformed {len(transformed)} records -> {path}[/green]")
+        console.print(
+            f"[green]Transformed {len(transformed)} records -> {path}[/green]"
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -561,10 +633,13 @@ def run_full_pipeline(
     """Run the entire pipeline end-to-end."""
     from rich.console import Console
     from rich.panel import Panel
+
     console = Console()
 
     start_time = datetime.now()
-    console.print(Panel("[bold]SAT Centre Updater — Full Pipeline[/bold]", border_style="cyan"))
+    console.print(
+        Panel("[bold]SAT Centre Updater — Full Pipeline[/bold]", border_style="cyan")
+    )
 
     # Step 1: Download
     console.print("\n[bold cyan]Step 1/7: Download[/bold cyan]")
@@ -618,10 +693,12 @@ def main() -> None:
     # Apply config overrides
     if args.confidence:
         from config import settings
+
         settings.GEOCODING.CONFIDENCE_THRESHOLD = args.confidence
 
     if args.workers:
         from config import settings
+
         settings.GEOCODING.MAX_WORKERS = args.workers
 
     try:
