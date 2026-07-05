@@ -24,6 +24,7 @@ import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
+from typing import List, Optional
 
 
 # Setup logging before imports that might fail
@@ -198,7 +199,7 @@ def run_download_interactive() -> None:
         "[dim]Tip: Copy from Chrome DevTools Network tab > Right-click request > Copy as cURL[/dim]\n"
     )
 
-    curl_lines = []
+    curl_lines: List[str] = []
     console.print("[dim]Paste cURL command (press Enter twice when done):[/dim]")
     while True:
         try:
@@ -248,7 +249,7 @@ def run_transform_interactive() -> None:
         )
     )
 
-    json_lines = []
+    json_lines: List[str] = []
     console.print("[dim]Paste sample JSON (press Enter twice when done):[/dim]")
     brace_count = 0
     while True:
@@ -295,7 +296,7 @@ def run_transform_interactive() -> None:
 # ---- Pipeline Step Runners ----
 
 
-def run_download(curl_command: str = None, curl_file: str = None) -> None:
+def run_download(curl_command: Optional[str] = None, curl_file: Optional[str] = None) -> None:
     """Run the download step."""
     from rich.console import Console
 
@@ -551,7 +552,7 @@ def run_resume() -> None:
         logging.getLogger(__name__).error(traceback.format_exc())
 
 
-def run_transform(sample_json: dict = None, sample_json_file: str = None) -> None:
+def run_transform(sample_json: Optional[dict] = None, sample_json_file: Optional[str] = None) -> None:
     """Run the schema transform step."""
     import json
 
@@ -624,12 +625,12 @@ def run_transform(sample_json: dict = None, sample_json_file: str = None) -> Non
 
 
 def run_full_pipeline(
-    curl_command: str = None,
-    curl_file: str = None,
+    curl_command: Optional[str] = None,
+    curl_file: Optional[str] = None,
     force: bool = False,
     transform: bool = False,
-    sample_json: dict = None,
-    sample_json_file: str = None,
+    sample_json: Optional[dict] = None,
+    sample_json_file: Optional[str] = None,
 ) -> None:
     """Run the entire pipeline end-to-end."""
     from rich.console import Console

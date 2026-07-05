@@ -11,7 +11,7 @@ Usage:
     results = manager.geocode("Legacy School Bangalore India")
 """
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Protocol
 
 from cache.cache_manager import CacheManager
 from config import settings
@@ -20,6 +20,13 @@ from providers.geoapify import GeoapifyProvider
 from providers.nominatim import NominatimProvider
 from providers.overpass import OverpassProvider
 from providers.photon import PhotonProvider
+
+
+class GeocodeProvider(Protocol):
+    """Protocol for geocoding providers."""
+
+    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]: ...
+    def close(self) -> None: ...
 
 
 class ProviderManager:
@@ -46,7 +53,7 @@ class ProviderManager:
         self.cache = cache or CacheManager()
 
         # Initialize providers in order
-        self._providers = {
+        self._providers: Dict[str, GeocodeProvider] = {
             "nominatim": NominatimProvider(),
             "photon": PhotonProvider(),
             "geoapify": GeoapifyProvider(),

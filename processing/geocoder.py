@@ -14,7 +14,7 @@ Usage:
 
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from cache.cache_manager import CacheManager
 from processing.normalizer import SatCentre
@@ -180,7 +180,7 @@ class CentreGeocoder:
         return result
 
     @property
-    def stats(self) -> Dict[str, int]:
+    def stats(self) -> Dict[str, Any]:
         """Get geocoding statistics."""
         return {
             "total": self._total,

@@ -26,7 +26,7 @@ def setup_directories() -> None:
         d.mkdir(parents=True, exist_ok=True)
 
 
-def format_bytes(size: int) -> str:
+def format_bytes(size: float) -> str:
     """Format byte count to human-readable string."""
     for unit in ["B", "KB", "MB", "GB"]:
         if size < 1024:
