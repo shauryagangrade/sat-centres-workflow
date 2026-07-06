@@ -8,7 +8,7 @@ A production-quality Python application that automatically downloads, processes,
 
 **Only one user input required**: a browser cURL copied from the official SAT website's Network tab.
 
-![SAT Centre Updater — pipeline in action](docs/media/demo.gif)
+![SAT Centre Updater — pipeline in action](./new-workflow.gif)
 
 > ⭐ If this tool saves you time, please star the repo — it helps others find it.
 
