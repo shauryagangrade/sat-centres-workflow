@@ -20,6 +20,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 from config import settings
 from processing.normalizer import SatCentre
+from utils.country_normalizer import normalize_country
 
 
 @dataclass
@@ -50,7 +51,7 @@ class ValidationSummary:
 
 # Simplified bounding boxes for continents (rough ocean detection)
 CONTINENT_BBOXES: Dict[str, Tuple[float, float, float, float]] = {
-    "asia": (10.0, -170.0, 55.0, 180.0),
+    "asia": (-10.0, -170.0, 55.0, 180.0),
     "europe": (35.0, -25.0, 72.0, 45.0),
     "north_america": (7.0, -170.0, 85.0, -50.0),
     "south_america": (-60.0, -90.0, 15.0, -30.0),
@@ -87,7 +88,7 @@ class CentreValidator:
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
         self.valid_countries: Set[str] = {
-            c.upper() for c in settings.VALIDATION.VALID_COUNTRIES
+            normalize_country(c) for c in settings.VALIDATION.VALID_COUNTRIES
         }
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
@@ -162,8 +163,11 @@ class CentreValidator:
                 result.failed_at = "ocean_check"
                 return result
 
-        # Check wrong country
-        if centre.country and centre.country.upper() not in self.valid_countries:
+        # Check wrong country (normalize to canonical form first)
+        if (
+            centre.country
+            and normalize_country(centre.country) not in self.valid_countries
+        ):
             result.is_valid = False
             result.failure_reasons.append(f"wrong_country: {centre.country}")
             result.failed_at = "country_check"

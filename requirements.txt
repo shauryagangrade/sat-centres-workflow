@@ -9,14 +9,14 @@ fake-useragent>=1.4.0
 # CLI & Terminal
 rich>=13.7.0
 click>=8.1.7
-tqdm>=4.66.1
+tqdm>=4.68.3
 
 # Data Validation & Models
 pydantic>=2.5.0
 
 # Geocoding & Fuzzy Matching
 geopy>=2.4.1
-rapidfuzz>=3.6.1
+rapidfuzz>=3.14.5
 
 # Data Processing
 beautifulsoup4>=4.12.2

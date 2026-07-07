@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Optional
 from rapidfuzz import fuzz
 
 from config import settings
+from utils.country_normalizer import normalize_country
 
 
 @dataclass
@@ -204,45 +205,16 @@ class CandidateScorer:
         if not query or not target:
             return 0.0
 
-        q = query.strip().lower()
-        t = target.strip().lower()
+        # Normalize both to canonical forms for reliable comparison
+        q_canonical = normalize_country(query)
+        t_canonical = normalize_country(target)
 
-        # Exact match
-        if q == t:
+        # Exact canonical match
+        if q_canonical == t_canonical:
             return 1.0
 
-        # Common country name mappings
-        aliases = {
-            "india": ["in", "republic of india", "bharat"],
-            "us": [
-                "usa",
-                "united states",
-                "united states of america",
-                "u.s.",
-                "u.s.a.",
-                "us",
-            ],
-            "usa": [
-                "us",
-                "united states",
-                "united states of america",
-                "u.s.",
-                "u.s.a.",
-                "us",
-            ],
-            "uk": ["united kingdom", "gb", "great britain", "u.k.", "england"],
-            "canada": ["ca", "dominion of canada"],
-            "uae": ["united arab emirates", "ae", "dubai", "abu dhabi"],
-            "singapore": ["sg", "republic of singapore"],
-        }
-
-        for canonical, variants in aliases.items():
-            all_forms = [canonical] + variants
-            if q in all_forms and t in all_forms:
-                return 1.0
-
         # Fuzzy fallback — clearly different countries score 0
-        score = fuzz.ratio(q, t)
+        score = fuzz.ratio(query.strip().lower(), target.strip().lower())
         if score < 50:
             return 0.0
         return score / 100.0
