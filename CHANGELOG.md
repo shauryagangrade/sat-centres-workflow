@@ -5,7 +5,24 @@ All notable changes to **sat-centres-workflow** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.1] - 2026-07-07
+
+## Added
+- Automatic version tagging on release
+- Full verification pipeline integration
+- Improved map UI with interactive filtering
+- Schema transformer enhancements
+- Comprehensive error handling
+
+## Changed
+- Geocoding now includes cross-provider consensus metrics
+- Evidence fusion logic updated for weighted scoring
+- CLI menu upgraded to tab-completion
+
+## Fixed
+- Cache population race condition
+- Empty result handling
+- Schema transformer null handling
 
 ### Added
 - Apache-2.0 LICENSE
@@ -47,5 +64,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pydantic v2 data models for validated `SatCentre` schema
 - `pytest` test suite with async support
 
-[Unreleased]: https://github.com/shauryagangrade/sat-centres-workflow/compare/v1.0.0...HEAD
+[1.0.1] - 2026-07-07
+
+## Added
+- Automatic version tagging on release
+- Full verification pipeline integration
+- Improved map UI with interactive filtering
+- Schema transformer enhancements
+- Comprehensive error handling
+
+## Changed
+- Geocoding now includes cross-provider consensus metrics
+- Evidence fusion logic updated for weighted scoring
+- CLI menu upgraded to tab-completion
+
+## Fixed
+- Cache population race condition
+- Empty result handling
+- Schema transformer null handling: https://github.com/shauryagangrade/sat-centres-workflow/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/shauryagangrade/sat-centres-workflow/releases/tag/v1.0.0
