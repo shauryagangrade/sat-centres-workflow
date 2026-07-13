@@ -15,7 +15,7 @@ tqdm>=4.68.3
 pydantic>=2.5.0
 
 # Geocoding & Fuzzy Matching
-geopy>=2.4.1
+geopy>=2.5.0
 rapidfuzz>=3.14.5
 
 # Data Processing
