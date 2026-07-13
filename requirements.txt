@@ -30,7 +30,7 @@ loguru>=0.7.2
 cryptography>=41.0.7
 
 # Testing
-pytest>=7.4.3
+pytest>=7.4.4
 pytest-asyncio>=0.23.2
 pytest-cov>=4.1.0
 
