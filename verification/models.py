@@ -6,7 +6,7 @@ and verification results used across the pipeline.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -24,7 +24,7 @@ class TextEvidence:
     alias_detected: bool = False
     transliteration_match: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name_similarity": self.name_similarity,
             "address_similarity": self.address_similarity,
@@ -43,19 +43,19 @@ class TextEvidence:
 class GeographyEvidence:
     """Geographic evidence for a candidate."""
 
-    distance_from_city_center: Optional[float] = None
-    distance_from_admin_boundary: Optional[float] = None
-    distance_from_previous: Optional[float] = None
+    distance_from_city_center: float | None = None
+    distance_from_admin_boundary: float | None = None
+    distance_from_previous: float | None = None
     reverse_geocode_match: bool = False
     admin_hierarchy_valid: bool = False
     coordinate_precision: float = 0.0
     on_land: bool = True
-    urban_area: Optional[bool] = None
+    urban_area: bool | None = None
     nearby_roads: bool = False
     nearby_educational: bool = False
     nearby_landmarks: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "distance_from_city_center": self.distance_from_city_center,
             "distance_from_admin_boundary": self.distance_from_admin_boundary,
@@ -79,10 +79,10 @@ class ProviderEvidence:
     providers_total: int = 0
     consensus_ratio: float = 0.0
     coordinate_variance: float = 0.0
-    provider_weights: Dict[str, float] = field(default_factory=dict)
+    provider_weights: dict[str, float] = field(default_factory=dict)
     disagreement: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "providers_agreeing": self.providers_agreeing,
             "providers_total": self.providers_total,
@@ -103,7 +103,7 @@ class PlaceTypeEvidence:
     is_negative_type: bool = False
     negative_type_detail: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "category": self.category,
             "confidence": self.confidence,
@@ -119,12 +119,12 @@ class HistoricalEvidence:
 
     has_previous_data: bool = False
     matches_previous: bool = False
-    distance_from_previous: Optional[float] = None
+    distance_from_previous: float | None = None
     address_changed: bool = False
     name_changed: bool = False
     large_movement: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "has_previous_data": self.has_previous_data,
             "matches_previous": self.matches_previous,
@@ -156,9 +156,9 @@ class CandidateEvidence:
     historical: HistoricalEvidence = field(default_factory=HistoricalEvidence)
 
     # Collectors that failed or were skipped
-    skipped_collectors: List[str] = field(default_factory=list)
+    skipped_collectors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "candidate_id": self.candidate_id,
             "provider": self.provider,
@@ -172,9 +172,9 @@ class CandidateEvidence:
             "skipped_collectors": self.skipped_collectors,
         }
 
-    def positive_signals(self) -> List[str]:
+    def positive_signals(self) -> list[str]:
         """Return human-readable list of positive evidence signals."""
-        signals: List[str] = []
+        signals: list[str] = []
 
         if self.text.name_similarity >= 0.8:
             signals.append(f"Name similarity: {self.text.name_similarity:.0%}")
@@ -208,9 +208,9 @@ class CandidateEvidence:
 
         return signals
 
-    def negative_signals(self) -> List[str]:
+    def negative_signals(self) -> list[str]:
         """Return human-readable list of negative evidence signals."""
-        signals: List[str] = []
+        signals: list[str] = []
 
         if self.text.name_similarity < 0.4:
             signals.append(f"Low name similarity: {self.text.name_similarity:.0%}")
@@ -220,14 +220,20 @@ class CandidateEvidence:
             signals.append("City mismatch")
         if not self.geography.on_land:
             signals.append("Coordinates in ocean")
-        if self.geography.reverse_geocode_match is False and self.geography.distance_from_city_center is not None and self.geography.distance_from_city_center > 50:
+        if (
+            self.geography.reverse_geocode_match is False
+            and self.geography.distance_from_city_center is not None
+            and self.geography.distance_from_city_center > 50
+        ):
             signals.append(
                 f"{self.geography.distance_from_city_center:.0f} km from expected city"
             )
         if self.provider_evidence.disagreement:
             signals.append("Provider disagreement")
         if self.place_type.is_negative_type:
-            signals.append(f"Inappropriate place type: {self.place_type.negative_type_detail}")
+            signals.append(
+                f"Inappropriate place type: {self.place_type.negative_type_detail}"
+            )
         if self.historical.large_movement:
             signals.append("Large unexpected movement from previous location")
         if not self.text.alias_detected and self.text.name_similarity < 0.3:
@@ -247,10 +253,10 @@ class VerificationResult:
 
     reference_id: str = ""
     reference_name: str = ""
-    candidates: List[CandidateEvidence] = field(default_factory=list)
-    best_candidate_id: Optional[str] = None
+    candidates: list[CandidateEvidence] = field(default_factory=list)
+    best_candidate_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "reference_id": self.reference_id,
             "reference_name": self.reference_name,

@@ -13,12 +13,10 @@ Usage:
     # ['Legacy School Bangalore', 'Legacy International School Bangalore', ...]
 """
 
-from typing import Dict, List, Set
-
 from processing.normalizer import SatCentre
 
 # Common abbreviations and noise words to strip for shorter queries
-NOISE_WORDS: List[str] = [
+NOISE_WORDS: list[str] = [
     "the",
     "a",
     "an",
@@ -46,7 +44,7 @@ class QueryGenerator:
 
     MAX_QUERIES: int = 8
 
-    def generate(self, centre: SatCentre) -> List[str]:
+    def generate(self, centre: SatCentre) -> list[str]:
         """
         Generate ordered search queries for a centre.
 
@@ -56,8 +54,8 @@ class QueryGenerator:
         Returns:
             Ordered list of search query strings, most specific first.
         """
-        queries: List[str] = []
-        seen: Set[str] = set()
+        queries: list[str] = []
+        seen: set[str] = set()
 
         name = centre.name.strip()
         city = centre.city.strip()
@@ -107,7 +105,7 @@ class QueryGenerator:
 
         return queries[: self.MAX_QUERIES]
 
-    def generate_batch(self, centres: List[SatCentre]) -> Dict[str, List[str]]:
+    def generate_batch(self, centres: list[SatCentre]) -> dict[str, list[str]]:
         """
         Generate queries for multiple centres.
 

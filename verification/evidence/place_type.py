@@ -6,11 +6,7 @@ Positive signals: school, university, college, educational campus, testing cente
 Negative signals: residential building, farm, forest, industrial site, etc.
 """
 
-import re
-from typing import Dict, Optional
-
 from verification.models import PlaceTypeEvidence
-
 
 # Positive place types for SAT centres
 POSITIVE_TYPES = {
@@ -147,7 +143,7 @@ class PlaceTypeEvidenceCollector:
         self,
         candidate_name: str,
         candidate_address: str,
-        raw_data: Optional[Dict] = None,
+        raw_data: dict | None = None,
     ) -> PlaceTypeEvidence:
         """
         Collect place type evidence.
@@ -211,7 +207,7 @@ class PlaceTypeEvidenceCollector:
         evidence.confidence = 0.3
         return evidence
 
-    def _extract_place_type(self, raw_data: Dict) -> str:
+    def _extract_place_type(self, raw_data: dict) -> str:
         """Extract place type from raw provider data."""
         # Try Geoapify format
         if "properties" in raw_data:

@@ -10,11 +10,9 @@ Usage:
     canonical = normalize_country("United States of America")  # -> "US"
 """
 
-from typing import Dict, Set
-
 # Canonical forms must match the values in config.VALIDATION.VALID_COUNTRIES.
 # Each key is a canonical form; values are all recognized variants (lowercase).
-_COUNTRY_ALIASES: Dict[str, Set[str]] = {
+_COUNTRY_ALIASES: dict[str, set[str]] = {
     "INDIA": {
         "india",
         "in",
@@ -65,7 +63,7 @@ _COUNTRY_ALIASES: Dict[str, Set[str]] = {
 }
 
 # Build reverse lookup: variant (lowercase) -> canonical (uppercase)
-_VARIANT_TO_CANONICAL: Dict[str, str] = {}
+_VARIANT_TO_CANONICAL: dict[str, str] = {}
 for canonical, variants in _COUNTRY_ALIASES.items():
     for variant in variants:
         _VARIANT_TO_CANONICAL[variant] = canonical
@@ -93,11 +91,11 @@ def normalize_country(country: str) -> str:
     return _VARIANT_TO_CANONICAL.get(key, key.upper())
 
 
-def get_all_known_variants() -> Set[str]:
+def get_all_known_variants() -> set[str]:
     """Return all recognized country name variants (lowercase)."""
     return set(_VARIANT_TO_CANONICAL.keys())
 
 
-def get_canonical_forms() -> Set[str]:
+def get_canonical_forms() -> set[str]:
     """Return all canonical country forms (uppercase)."""
     return set(_COUNTRY_ALIASES.keys())

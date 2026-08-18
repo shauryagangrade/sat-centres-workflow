@@ -7,7 +7,7 @@ Usage:
     from utils.helpers import setup_directories, format_bytes
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from config import settings
 
@@ -44,7 +44,7 @@ def format_duration(seconds: float) -> str:
     return f"{minutes}m {secs:.1f}s"
 
 
-def safe_get(data: Dict[str, Any], *keys: str, default: Any = None) -> Any:
+def safe_get(data: dict[str, Any], *keys: str, default: Any = None) -> Any:
     """Safely navigate nested dictionaries."""
     current = data
     for key in keys:

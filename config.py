@@ -11,7 +11,6 @@ Usage:
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 
 @dataclass
@@ -30,13 +29,13 @@ class HTTPSettings:
 class GeocodingSettings:
     """Geocoding provider configuration."""
 
-    PROVIDER_ORDER: List[str] = field(
+    PROVIDER_ORDER: list[str] = field(
         default_factory=lambda: ["nominatim", "photon", "geoapify", "overpass"]
     )
     CONFIDENCE_THRESHOLD: float = 0.6
     MAX_WORKERS: int = 5
     RATE_LIMIT_DELAY: float = 1.0
-    GEOAPIFY_API_KEY: Optional[str] = None
+    GEOAPIFY_API_KEY: str | None = None
 
 
 @dataclass
@@ -66,7 +65,7 @@ class PathSettings:
 class ValidationSettings:
     """Validation rules configuration."""
 
-    VALID_COUNTRIES: List[str] = field(
+    VALID_COUNTRIES: list[str] = field(
         default_factory=lambda: [
             "INDIA",
             "US",

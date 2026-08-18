@@ -16,7 +16,6 @@ Usage:
 import csv
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 from config import settings
 from processing.normalizer import SatCentre
@@ -29,7 +28,7 @@ class ValidationResult:
 
     centre: SatCentre
     is_valid: bool = True
-    failure_reasons: List[str] = field(default_factory=list)
+    failure_reasons: list[str] = field(default_factory=list)
     failed_at: str = ""
 
 
@@ -50,7 +49,7 @@ class ValidationSummary:
 
 
 # Simplified bounding boxes for continents (rough ocean detection)
-CONTINENT_BBOXES: Dict[str, Tuple[float, float, float, float]] = {
+CONTINENT_BBOXES: dict[str, tuple[float, float, float, float]] = {
     "asia": (-10.0, -170.0, 55.0, 180.0),
     "europe": (35.0, -25.0, 72.0, 45.0),
     "north_america": (7.0, -170.0, 85.0, -50.0),
@@ -76,7 +75,7 @@ class CentreValidator:
 
     def __init__(
         self,
-        reports_dir: Optional[Path] = None,
+        reports_dir: Path | None = None,
     ) -> None:
         """
         Initialize the validator.
@@ -87,14 +86,14 @@ class CentreValidator:
         self.reports_dir = reports_dir or settings.PATHS.REPORTS_DIR
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
-        self.valid_countries: Set[str] = {
+        self.valid_countries: set[str] = {
             normalize_country(c) for c in settings.VALIDATION.VALID_COUNTRIES
         }
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
     def validate(
-        self, centres: List[SatCentre]
-    ) -> Tuple[List[SatCentre], List[ValidationResult]]:
+        self, centres: list[SatCentre]
+    ) -> tuple[list[SatCentre], list[ValidationResult]]:
         """
         Validate a list of centres.
 
@@ -104,11 +103,11 @@ class CentreValidator:
         Returns:
             Tuple of (valid_centres, failed_results).
         """
-        valid: List[SatCentre] = []
-        failed: List[ValidationResult] = []
+        valid: list[SatCentre] = []
+        failed: list[ValidationResult] = []
 
-        seen_ids: Set[str] = set()
-        seen_coords: Set[Tuple[float, float]] = set()
+        seen_ids: set[str] = set()
+        seen_coords: set[tuple[float, float]] = set()
 
         for centre in centres:
             result = self._validate_single(centre, seen_ids, seen_coords)
@@ -132,8 +131,8 @@ class CentreValidator:
     def _validate_single(
         self,
         centre: SatCentre,
-        seen_ids: Set[str],
-        seen_coords: Set[Tuple[float, float]],
+        seen_ids: set[str],
+        seen_coords: set[tuple[float, float]],
     ) -> ValidationResult:
         """
         Validate a single centre.
@@ -156,12 +155,13 @@ class CentreValidator:
             return result
 
         # Check ocean coordinates
-        if settings.VALIDATION.OCEAN_CHECK:
-            if not self._is_on_land(centre.latitude, centre.longitude):
-                result.is_valid = False
-                result.failure_reasons.append("ocean_coordinates")
-                result.failed_at = "ocean_check"
-                return result
+        if settings.VALIDATION.OCEAN_CHECK and not self._is_on_land(
+            centre.latitude, centre.longitude
+        ):
+            result.is_valid = False
+            result.failure_reasons.append("ocean_coordinates")
+            result.failed_at = "ocean_check"
+            return result
 
         # Check wrong country (normalize to canonical form first)
         if (
@@ -215,13 +215,13 @@ class CentreValidator:
         Returns:
             True if coordinates are likely on land.
         """
-        for name, (min_lat, min_lon, max_lat, max_lon) in CONTINENT_BBOXES.items():
+        for min_lat, min_lon, max_lat, max_lon in CONTINENT_BBOXES.values():
             if min_lat <= lat <= max_lat and min_lon <= lon <= max_lon:
                 return True
 
         return False
 
-    def _export_failures(self, failed: List[ValidationResult]) -> Path:
+    def _export_failures(self, failed: list[ValidationResult]) -> Path:
         """
         Export failed centres to a CSV report.
 
@@ -267,7 +267,7 @@ class CentreValidator:
         return file_path
 
     def get_summary(
-        self, total: int, valid: List[SatCentre], failed: List[ValidationResult]
+        self, total: int, valid: list[SatCentre], failed: list[ValidationResult]
     ) -> ValidationSummary:
         """
         Build a summary of validation results.

@@ -15,9 +15,9 @@ import csv
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, ClassVar
 
 from config import settings
 from processing.normalizer import SatCentre
@@ -34,7 +34,7 @@ class UpdateSummary:
     updated_centres: int = 0
     removed_centres: int = 0
     unchanged_centres: int = 0
-    changes: List[Dict[str, Any]] = field(default_factory=list)
+    changes: list[dict[str, Any]] = field(default_factory=list)
 
 
 class DatasetUpdater:
@@ -48,7 +48,7 @@ class DatasetUpdater:
     """
 
     # Fields considered "location-related" and eligible for update
-    LOCATION_FIELDS: Set[str] = {
+    LOCATION_FIELDS: ClassVar[set[str]] = {
         "latitude",
         "longitude",
         "address",
@@ -58,7 +58,7 @@ class DatasetUpdater:
         "postal_code",
     }
 
-    def __init__(self, output_dir: Optional[Path] = None) -> None:
+    def __init__(self, output_dir: Path | None = None) -> None:
         """
         Initialize the updater.
 
@@ -72,9 +72,9 @@ class DatasetUpdater:
 
     def update(
         self,
-        existing_centres: List[SatCentre],
-        new_centres: List[SatCentre],
-    ) -> Tuple[List[SatCentre], UpdateSummary]:
+        existing_centres: list[SatCentre],
+        new_centres: list[SatCentre],
+    ) -> tuple[list[SatCentre], UpdateSummary]:
         """
         Merge new centres into existing dataset.
 
@@ -87,13 +87,13 @@ class DatasetUpdater:
         """
         summary = UpdateSummary(total=len(new_centres))
 
-        existing_map: Dict[str, SatCentre] = {c.id: c for c in existing_centres if c.id}
-        new_map: Dict[str, SatCentre] = {c.id: c for c in new_centres if c.id}
+        existing_map: dict[str, SatCentre] = {c.id: c for c in existing_centres if c.id}
+        new_map: dict[str, SatCentre] = {c.id: c for c in new_centres if c.id}
 
-        existing_ids: Set[str] = set(existing_map.keys())
-        new_ids: Set[str] = set(new_map.keys())
+        existing_ids: set[str] = set(existing_map.keys())
+        new_ids: set[str] = set(new_map.keys())
 
-        merged: List[SatCentre] = []
+        merged: list[SatCentre] = []
 
         # Process new centres
         for centre in new_centres:
@@ -122,7 +122,7 @@ class DatasetUpdater:
 
         return merged, summary
 
-    def _merge_centre(self, old: SatCentre, new: SatCentre) -> Optional[Dict[str, Any]]:
+    def _merge_centre(self, old: SatCentre, new: SatCentre) -> dict[str, Any] | None:
         """
         Merge location fields from new into old, preserving other fields.
 
@@ -133,7 +133,7 @@ class DatasetUpdater:
         Returns:
             Dictionary describing the change, or None if no change.
         """
-        changes: Dict[str, Any] = {"id": old.id, "name": old.name}
+        changes: dict[str, Any] = {"id": old.id, "name": old.name}
 
         for field_name in self.LOCATION_FIELDS:
             new_val = getattr(new, field_name, None)
@@ -151,7 +151,7 @@ class DatasetUpdater:
 
         return None
 
-    def _export_changes(self, changes: List[Dict[str, Any]]) -> Path:
+    def _export_changes(self, changes: list[dict[str, Any]]) -> Path:
         """
         Export change details to CSV.
 
@@ -187,7 +187,7 @@ class DatasetUpdater:
 
         return file_path
 
-    def save(self, centres: List[SatCentre], filename: str = "sat_centre.json") -> Path:
+    def save(self, centres: list[SatCentre], filename: str = "sat_centre.json") -> Path:
         """
         Save the final dataset to JSON.
 
@@ -202,7 +202,7 @@ class DatasetUpdater:
 
         data = {
             "metadata": {
-                "generated_at": datetime.now().isoformat(),
+                "generated_at": datetime.now(tz=timezone.utc).isoformat(),
                 "total_centres": len(centres),
                 "version": "1.0.0",
             },
@@ -214,7 +214,7 @@ class DatasetUpdater:
 
         return file_path
 
-    def load_existing(self, filename: str = "sat_centre.json") -> List[SatCentre]:
+    def load_existing(self, filename: str = "sat_centre.json") -> list[SatCentre]:
         """
         Load the existing output dataset.
 
@@ -234,7 +234,7 @@ class DatasetUpdater:
         centres_data = data.get("centres", data) if isinstance(data, dict) else data
         return [SatCentre.from_dict(record) for record in centres_data]
 
-    def export_duplicates(self, centres: List[SatCentre]) -> Optional[Path]:
+    def export_duplicates(self, centres: list[SatCentre]) -> Path | None:
         """
         Find and export duplicate centres.
 
@@ -244,7 +244,7 @@ class DatasetUpdater:
         Returns:
             Path to duplicates CSV, or None if no duplicates found.
         """
-        seen: Dict[str, List[SatCentre]] = {}
+        seen: dict[str, list[SatCentre]] = {}
 
         for centre in centres:
             key = f"{centre.latitude}_{centre.longitude}"
@@ -263,7 +263,7 @@ class DatasetUpdater:
             writer.writerow(
                 ["id", "name", "city", "state", "country", "latitude", "longitude"]
             )
-            for coords, centre_list in duplicates.items():
+            for centre_list in duplicates.values():
                 for c in centre_list:
                     writer.writerow(
                         [

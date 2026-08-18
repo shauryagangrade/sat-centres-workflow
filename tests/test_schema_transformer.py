@@ -4,8 +4,6 @@ SAT Centre Updater - Schema Transformer Tests
 Tests for URL template detection, schema inference, and transformation.
 """
 
-import json
-
 from processing.normalizer import SatCentre
 from processing.schema_transformer import SchemaTransformer
 
@@ -49,9 +47,7 @@ class TestSchemaTransformer:
 
     def test_url_template_detection_google_maps(self):
         """Test detection of Google Maps URL with coordinates."""
-        sample = {
-            "gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"
-        }
+        sample = {"gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"}
         schema = self.transformer.infer_schema(sample, self.centres)
         assert "url_template:" in schema["gmaps_link"]
         assert "https://maps.google.com/?q={lat},{lng}" in schema["gmaps_link"]
@@ -60,9 +56,7 @@ class TestSchemaTransformer:
 
     def test_url_template_detection_separate_params(self):
         """Test detection of URL with lat/lng as separate query params."""
-        sample = {
-            "link": "https://example.com/place?lat=12.9716&lon=77.5946"
-        }
+        sample = {"link": "https://example.com/place?lat=12.9716&lon=77.5946"}
         schema = self.transformer.infer_schema(sample, self.centres)
         assert "url_template:" in schema["link"]
         assert "{lat}" in schema["link"]
@@ -70,9 +64,7 @@ class TestSchemaTransformer:
 
     def test_url_template_substitution(self):
         """Test that URL templates are substituted with actual coordinates."""
-        sample = {
-            "gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"
-        }
+        sample = {"gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"}
         results = self.transformer.transform(self.centres, sample)
 
         assert len(results) == 2
@@ -83,9 +75,7 @@ class TestSchemaTransformer:
 
     def test_url_template_with_encoded_comma(self):
         """Test URL with %2C encoded comma."""
-        sample = {
-            "link": "https://maps.google.com/?q=12.9716%2C77.5946"
-        }
+        sample = {"link": "https://maps.google.com/?q=12.9716%2C77.5946"}
         schema = self.transformer.infer_schema(sample, self.centres)
         assert "url_template:" in schema["link"]
         assert "{lat}" in schema["link"]
@@ -105,9 +95,7 @@ class TestSchemaTransformer:
 
     def test_url_template_without_coords_uses_original(self):
         """Test that URL template without available coords returns original."""
-        sample = {
-            "gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"
-        }
+        sample = {"gmaps_link": "https://maps.google.com/?q=12.9716,77.5946"}
         # Centre with no coordinates
         no_coord_centres = [
             SatCentre(id="1", name="Test", latitude=None, longitude=None)
@@ -118,13 +106,17 @@ class TestSchemaTransformer:
     def test_nested_url_template(self):
         """Test URL template in nested object."""
         sample = {
-            "links": {
-                "google_maps": "https://maps.google.com/?q=12.9716,77.5946"
-            }
+            "links": {"google_maps": "https://maps.google.com/?q=12.9716,77.5946"}
         }
         results = self.transformer.transform(self.centres, sample)
-        assert results[0]["links"]["google_maps"] == "https://maps.google.com/?q=12.9716,77.5946"
-        assert results[1]["links"]["google_maps"] == "https://maps.google.com/?q=28.6139,77.209"
+        assert (
+            results[0]["links"]["google_maps"]
+            == "https://maps.google.com/?q=12.9716,77.5946"
+        )
+        assert (
+            results[1]["links"]["google_maps"]
+            == "https://maps.google.com/?q=28.6139,77.209"
+        )
 
     def test_direct_field_mapping(self):
         """Test that direct field matches are found correctly."""

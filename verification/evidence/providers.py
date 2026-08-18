@@ -7,14 +7,12 @@ Tracks coordinate variance and provider reliability weights.
 """
 
 import math
-from typing import Dict, List, Optional, Tuple
 
 from verification.models import ProviderEvidence
 
-
 # Provider reliability weights (0.0-1.0)
 # Based on data quality, freshness, and educational institution coverage
-PROVIDER_WEIGHTS: Dict[str, float] = {
+PROVIDER_WEIGHTS: dict[str, float] = {
     "nominatim": 0.85,
     "photon": 0.80,
     "geoapify": 0.90,
@@ -26,7 +24,7 @@ PROVIDER_WEIGHTS: Dict[str, float] = {
 }
 
 
-def _coordinate_variance(coords: List[Tuple[float, float]]) -> float:
+def _coordinate_variance(coords: list[tuple[float, float]]) -> float:
     """
     Calculate variance of a set of coordinates.
     Returns variance in degrees (lower = more agreement).
@@ -44,8 +42,8 @@ def _coordinate_variance(coords: List[Tuple[float, float]]) -> float:
 
 
 def _find_cluster_center(
-    coords: List[Tuple[float, float]], threshold_km: float = 5.0
-) -> Optional[Tuple[float, float]]:
+    coords: list[tuple[float, float]], threshold_km: float = 5.0
+) -> tuple[float, float] | None:
     """
     Find the center of the largest cluster of coordinates within threshold_km.
     Uses simple iterative clustering.
@@ -100,8 +98,8 @@ class ProviderEvidenceCollector:
     def collect(
         self,
         candidate_provider: str,
-        all_candidates: List[Dict],
-        provider_results: Optional[Dict[str, List[Dict]]] = None,
+        all_candidates: list[dict],
+        provider_results: dict[str, list[dict]] | None = None,
     ) -> ProviderEvidence:
         """
         Collect provider consensus evidence.
@@ -144,7 +142,7 @@ class ProviderEvidenceCollector:
         ref_lon = all_candidates[0].get("longitude", 0)
 
         agreeing_providers = set()
-        provider_coords: Dict[str, List[Tuple[float, float]]] = {}
+        provider_coords: dict[str, list[tuple[float, float]]] = {}
 
         for name, candidates in providers_with_results.items():
             for cand in candidates:
@@ -175,8 +173,7 @@ class ProviderEvidenceCollector:
 
         # Provider weights
         evidence.provider_weights = {
-            name: PROVIDER_WEIGHTS.get(name, 0.5)
-            for name in providers_with_results
+            name: PROVIDER_WEIGHTS.get(name, 0.5) for name in providers_with_results
         }
 
         # Disagreement flag

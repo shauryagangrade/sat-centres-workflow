@@ -18,17 +18,17 @@ Usage:
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from cache.cache_manager import CacheManager
 from processing.normalizer import SatCentre
 from processing.query_generator import QueryGenerator
 from providers.provider_manager import ProviderManager
-from verification.confidence import ConfidenceCalculator, ConfidenceResult
-from verification.decision_engine import Decision, DecisionEngine, VerificationState
-from verification.fusion import EvidenceFusion, FusionScore
+from verification.confidence import ConfidenceCalculator
+from verification.decision_engine import Decision, DecisionEngine
+from verification.fusion import EvidenceFusion
 from verification.models import CandidateEvidence, VerificationResult
-from verification.report import AuditEntry, AuditReport, AuditReportGenerator
+from verification.report import AuditEntry, AuditReportGenerator
 from verification.verifier import LocationVerifier
 
 logger = logging.getLogger(__name__)
@@ -40,14 +40,14 @@ class GeocodeResult:
 
     centre: SatCentre
     geocoded: bool = False
-    best_candidate: Optional[CandidateEvidence] = None
-    best_decision: Optional[Decision] = None
-    verification_result: Optional[VerificationResult] = None
-    audit_entries: List[AuditEntry] = field(default_factory=list)
-    all_candidates: List[CandidateEvidence] = field(default_factory=list)
-    queries_tried: List[str] = field(default_factory=list)
+    best_candidate: CandidateEvidence | None = None
+    best_decision: Decision | None = None
+    verification_result: VerificationResult | None = None
+    audit_entries: list[AuditEntry] = field(default_factory=list)
+    all_candidates: list[CandidateEvidence] = field(default_factory=list)
+    queries_tried: list[str] = field(default_factory=list)
     provider_used: str = ""
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class CentreGeocoder:
@@ -68,7 +68,7 @@ class CentreGeocoder:
 
     def __init__(
         self,
-        cache: Optional[CacheManager] = None,
+        cache: CacheManager | None = None,
         force: bool = False,
     ) -> None:
         """
@@ -97,7 +97,7 @@ class CentreGeocoder:
         self._failed = 0
         self._needs_review = 0
 
-    def geocode_all(self, centres: List[SatCentre]) -> List[GeocodeResult]:
+    def geocode_all(self, centres: list[SatCentre]) -> list[GeocodeResult]:
         """
         Geocode a list of centres using the evidence-based pipeline.
 
@@ -113,7 +113,7 @@ class CentreGeocoder:
         self._failed = 0
         self._needs_review = 0
 
-        results: List[GeocodeResult] = []
+        results: list[GeocodeResult] = []
         for i, centre in enumerate(centres):
             logger.info(f"Geocoding [{i + 1}/{self._total}] {centre.name}")
             result = self.geocode_single(centre)
@@ -158,13 +158,11 @@ class CentreGeocoder:
             return result
 
         # Stage 2: Retrieve candidates from ALL providers
-        provider_results: Dict[str, List[Dict[str, Any]]] = {}
-        all_candidate_dicts: List[Dict[str, Any]] = []
+        provider_results: dict[str, list[dict[str, Any]]] = {}
+        all_candidate_dicts: list[dict[str, Any]] = []
 
         for query in queries:
-            provider_raw = self.provider_manager.geocode_all_providers(
-                query, limit=5
-            )
+            provider_raw = self.provider_manager.geocode_all_providers(query, limit=5)
             for provider_name, candidates in provider_raw.items():
                 if provider_name not in provider_results:
                     provider_results[provider_name] = []
@@ -272,7 +270,7 @@ class CentreGeocoder:
         return result
 
     @property
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         """Get geocoding statistics."""
         return {
             "total": self._total,

@@ -11,9 +11,9 @@ Usage:
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from config import settings
 
@@ -25,7 +25,7 @@ class PipelineStats:
     """Aggregate statistics for the full pipeline run."""
 
     start_time: datetime = field(default_factory=datetime.now)
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     curl_parsed: bool = False
     download_status: int = 0
     download_format: str = "unknown"
@@ -39,8 +39,8 @@ class PipelineStats:
     geocoded_centres: int = 0
     cache_hits: int = 0
     api_calls: int = 0
-    provider_usage: Dict[str, int] = field(default_factory=dict)
-    validation_summary: Dict[str, Any] = field(default_factory=dict)
+    provider_usage: dict[str, int] = field(default_factory=dict)
+    validation_summary: dict[str, Any] = field(default_factory=dict)
 
     @property
     def runtime_seconds(self) -> float:
@@ -69,7 +69,7 @@ class ReportExporter:
     - summary.html (HTML report)
     """
 
-    def __init__(self, reports_dir: Optional[Path] = None) -> None:
+    def __init__(self, reports_dir: Path | None = None) -> None:
         """
         Initialize the exporter.
 
@@ -79,7 +79,7 @@ class ReportExporter:
         self.reports_dir = reports_dir or settings.PATHS.REPORTS_DIR
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate_all(self, stats: PipelineStats) -> Dict[str, Path]:
+    def generate_all(self, stats: PipelineStats) -> dict[str, Path]:
         """
         Generate all report files.
 
@@ -89,7 +89,7 @@ class ReportExporter:
         Returns:
             Dictionary mapping report name to file path.
         """
-        results: Dict[str, Path] = {}
+        results: dict[str, Path] = {}
 
         results["summary_md"] = self._generate_summary_md(stats)
         results["summary_html"] = self._generate_summary_html(stats)
@@ -112,7 +112,7 @@ class ReportExporter:
 
         content = f"""# SAT Centre Update Report
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Generated: {datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}
 
 ## Pipeline Summary
 
@@ -201,7 +201,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 </head>
 <body>
     <h1>SAT Centre Update Report</h1>
-    <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <p>Generated: {datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}</p>
 
     <div class="stat-card">
         <div class="stat-value">{stats.total_centres}</div>

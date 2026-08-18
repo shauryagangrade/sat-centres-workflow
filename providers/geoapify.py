@@ -12,7 +12,7 @@ Usage:
 """
 
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -30,7 +30,7 @@ class GeoapifyProvider:
 
     BASE_URL = "https://api.geoapify.com/v1/geocode/search"
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         """
         Initialize the Geoapify provider.
 
@@ -57,7 +57,7 @@ class GeoapifyProvider:
             time.sleep(self._min_interval - elapsed)
         self._last_request_time = time.time()
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]:
         """
         Geocode a query string.
 
@@ -73,7 +73,7 @@ class GeoapifyProvider:
 
         self._respect_rate_limit()
 
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "text": query,
             "limit": limit,
             "apiKey": self.api_key,
@@ -92,7 +92,7 @@ class GeoapifyProvider:
         features = data.get("features", [])
         return [self._parse_feature(f) for f in features]
 
-    def _parse_feature(self, feature: Dict[str, Any]) -> GeocodeCandidate:
+    def _parse_feature(self, feature: dict[str, Any]) -> GeocodeCandidate:
         """Parse a Geoapify GeoJSON feature into a GeocodeCandidate."""
         props = feature.get("properties", {})
         geom = feature.get("geometry", {})

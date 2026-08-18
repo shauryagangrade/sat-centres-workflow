@@ -6,13 +6,11 @@ Uses weighted aggregation with configurable importance weights.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 from verification.models import CandidateEvidence
 
-
 # Default weights for each evidence category
-DEFAULT_CATEGORY_WEIGHTS: Dict[str, float] = {
+DEFAULT_CATEGORY_WEIGHTS: dict[str, float] = {
     "text": 0.30,
     "geography": 0.25,
     "provider": 0.20,
@@ -26,12 +24,12 @@ class FusionScore:
     """Result of fusing evidence for a single candidate."""
 
     total_score: float = 0.0
-    category_scores: Dict[str, float] = field(default_factory=dict)
+    category_scores: dict[str, float] = field(default_factory=dict)
     positive_count: int = 0
     negative_count: int = 0
     evidence_strength: float = 0.0  # How much evidence we have (0-1)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "total_score": self.total_score,
             "category_scores": self.category_scores,
@@ -49,9 +47,7 @@ class EvidenceFusion:
     The fusion considers both the scores and the strength of available evidence.
     """
 
-    def __init__(
-        self, category_weights: Optional[Dict[str, float]] = None
-    ) -> None:
+    def __init__(self, category_weights: dict[str, float] | None = None) -> None:
         """
         Initialize the fusion engine.
 
@@ -105,9 +101,7 @@ class EvidenceFusion:
 
         return result
 
-    def rank(
-        self, candidates: List[CandidateEvidence]
-    ) -> List[tuple]:
+    def rank(self, candidates: list[CandidateEvidence]) -> list[tuple]:
         """
         Rank candidates by fused score.
 

@@ -18,10 +18,10 @@ import json
 import re
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar
 
 from config import settings
 
@@ -38,16 +38,16 @@ class SatCentre:
     country: str = ""
     postal_code: str = ""
     phone: str = ""
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    latitude: float | None = None
+    longitude: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SatCentre":
+    def from_dict(cls, data: dict[str, Any]) -> "SatCentre":
         """Create SatCentre from dictionary."""
         return cls(
             id=data.get("id", ""),
@@ -76,7 +76,7 @@ class Normalizer:
     """
 
     # Known field mappings from College Board API to our schema
-    FIELD_MAPPINGS: Dict[str, Dict[str, str]] = {
+    FIELD_MAPPINGS: ClassVar[dict[str, dict[str, str]]] = {
         "collegeboard": {
             "TestCenterCode": "id",
             "TestCenterName": "name",
@@ -125,7 +125,7 @@ class Normalizer:
         },
     }
 
-    def __init__(self, generated_dir: Optional[Path] = None) -> None:
+    def __init__(self, generated_dir: Path | None = None) -> None:
         """
         Initialize the normalizer.
 
@@ -135,7 +135,7 @@ class Normalizer:
         self.generated_dir = generated_dir or settings.PATHS.GENERATED_DIR
         self.generated_dir.mkdir(parents=True, exist_ok=True)
 
-    def normalize(self, raw_data: Any, fmt: str = "auto") -> List[SatCentre]:
+    def normalize(self, raw_data: Any, fmt: str = "auto") -> list[SatCentre]:
         """
         Normalize raw data into a list of SatCentre objects.
 
@@ -154,7 +154,7 @@ class Normalizer:
         records = self._extract_records(raw_data, fmt)
 
         # Normalize each record
-        centres: List[SatCentre] = []
+        centres: list[SatCentre] = []
         for record in records:
             centre = self._normalize_record(record)
             if centre:
@@ -181,12 +181,12 @@ class Normalizer:
                 pass
         if isinstance(raw_data, str):
             stripped = raw_data.strip()
-            if stripped.startswith("{") or stripped.startswith("["):
+            if stripped.startswith(("{", "[")):
                 return "json"
             return "csv"
         return "json"
 
-    def _extract_records(self, raw_data: Any, fmt: str) -> List[Dict[str, Any]]:
+    def _extract_records(self, raw_data: Any, fmt: str) -> list[dict[str, Any]]:
         """
         Extract flat record dictionaries from raw data.
 
@@ -212,18 +212,18 @@ class Normalizer:
 
         return self._flatten_json(raw_data)
 
-    def _parse_csv(self, raw_data: Any) -> List[Dict[str, Any]]:
+    def _parse_csv(self, raw_data: Any) -> list[dict[str, Any]]:
         """Parse CSV data into records."""
         if isinstance(raw_data, bytes):
             raw_data = raw_data.decode("utf-8")
 
-        records: List[Dict[str, Any]] = []
+        records: list[dict[str, Any]] = []
         reader = csv.DictReader(StringIO(raw_data))
         for row in reader:
             records.append(dict(row))
         return records
 
-    def _flatten_json(self, data: Any) -> List[Dict[str, Any]]:
+    def _flatten_json(self, data: Any) -> list[dict[str, Any]]:
         """
         Flatten JSON data into a list of record dictionaries.
 
@@ -233,32 +233,37 @@ class Normalizer:
         - Nested objects
         """
         if isinstance(data, list):
-            records: List[Dict[str, Any]] = []
+            records: list[dict[str, Any]] = []
             for item in data:
                 if isinstance(item, dict):
                     records.append(item)
-                elif isinstance(item, list):
-                    # List of lists - take first row as header
-                    if len(item) > 0 and isinstance(item[0], list):
-                        headers = item[0]
-                        for row in item[1:]:
-                            record = dict(zip(headers, row))
-                            records.append(record)
+                elif (
+                    isinstance(item, list)
+                    and len(item) > 0
+                    and isinstance(item[0], list)
+                ):
+                    headers = item[0]
+                    for row in item[1:]:
+                        record = dict(zip(headers, row))
+                        records.append(record)
             return records
 
         if isinstance(data, dict):
             # Look for a list value in any key
-            for key, value in data.items():
-                if isinstance(value, list) and len(value) > 0:
-                    if isinstance(value[0], dict):
-                        return value
+            for value in data.values():
+                if (
+                    isinstance(value, list)
+                    and len(value) > 0
+                    and isinstance(value[0], dict)
+                ):
+                    return value
 
             # Single object - wrap in list
             return [data]
 
         return []
 
-    def _normalize_record(self, record: Dict[str, Any]) -> Optional[SatCentre]:
+    def _normalize_record(self, record: dict[str, Any]) -> SatCentre | None:
         """
         Normalize a single record into a SatCentre object.
 
@@ -302,19 +307,19 @@ class Normalizer:
             longitude=self._parse_float(mapped.get("longitude")),
             metadata={
                 "raw_record": record,
-                "normalized_at": datetime.now().isoformat(),
+                "normalized_at": datetime.now(tz=timezone.utc).isoformat(),
             },
         )
 
         return centre
 
-    def _map_fields(self, record: Dict[str, Any]) -> Dict[str, Any]:
+    def _map_fields(self, record: dict[str, Any]) -> dict[str, Any]:
         """Map raw field names to our schema using known mappings."""
-        result: Dict[str, Any] = {}
+        result: dict[str, Any] = {}
 
         # Try collegeboard mapping first
         for source_key, target_key in self.FIELD_MAPPINGS["collegeboard"].items():
-            if source_key in record and record[source_key]:
+            if record.get(source_key):
                 result[target_key] = record[source_key]
 
         # Try generic mapping (won't overwrite existing)
@@ -324,15 +329,15 @@ class Normalizer:
 
         return result
 
-    def _generate_id(self, record: Dict[str, Any]) -> str:
+    def _generate_id(self, record: dict[str, Any]) -> str:
         """Generate a deterministic ID for a record."""
         # Try to build ID from key fields
         key_fields = ["name", "city", "state", "country"]
         parts = []
         for field_name in key_fields:
-            for key in record:
-                if key.lower() == field_name and record[key]:
-                    parts.append(str(record[key]).strip().lower())
+            for key, value in record.items():
+                if key.lower() == field_name and value:
+                    parts.append(str(value).strip().lower())
                     break
 
         if parts:
@@ -352,7 +357,7 @@ class Normalizer:
         value = value.replace("\x00", "")
         return value
 
-    def _parse_float(self, value: Any) -> Optional[float]:
+    def _parse_float(self, value: Any) -> float | None:
         """Parse a value as float, returning None on failure."""
         if value is None:
             return None
@@ -362,7 +367,7 @@ class Normalizer:
             return None
 
     def save(
-        self, centres: List[SatCentre], filename: str = "sat_centres.json"
+        self, centres: list[SatCentre], filename: str = "sat_centres.json"
     ) -> Path:
         """
         Save normalised centres to a JSON file.
@@ -382,7 +387,7 @@ class Normalizer:
 
         return file_path
 
-    def load(self, filename: str = "sat_centres.json") -> List[SatCentre]:
+    def load(self, filename: str = "sat_centres.json") -> list[SatCentre]:
         """
         Load previously normalised centres from a JSON file.
 

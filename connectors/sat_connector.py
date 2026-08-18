@@ -13,7 +13,6 @@ Usage:
 
 import logging
 from pathlib import Path
-from typing import List, Optional
 
 from processing.curl_parser import CurlParser
 from processing.downloader import Downloader, DownloadResult
@@ -41,9 +40,9 @@ class SatConnector:
 
     def run(
         self,
-        curl_command: Optional[str] = None,
-        curl_file: Optional[str] = None,
-    ) -> List[SatCentre]:
+        curl_command: str | None = None,
+        curl_file: str | None = None,
+    ) -> list[SatCentre]:
         """
         Execute the full acquisition pipeline.
 
@@ -99,8 +98,8 @@ class SatConnector:
 
     def download_only(
         self,
-        curl_command: Optional[str] = None,
-        curl_file: Optional[str] = None,
+        curl_command: str | None = None,
+        curl_file: str | None = None,
     ) -> DownloadResult:
         """
         Execute only the download step (no normalization).

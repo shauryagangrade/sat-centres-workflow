@@ -20,10 +20,10 @@ import gzip
 import json
 import zipfile
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -38,19 +38,19 @@ class DownloadResult:
     """Result of a download operation."""
 
     status_code: int
-    headers: Dict[str, str]
+    headers: dict[str, str]
     content: bytes
     text: str
     content_type: str
     encoding: str
-    file_path: Optional[Path] = None
+    file_path: Path | None = None
     response_format: str = "unknown"
     elapsed_seconds: float = 0.0
     success: bool = False
-    error: Optional[str] = None
+    error: str | None = None
     redirects: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert result to dictionary."""
         return {
             "status_code": self.status_code,
@@ -78,7 +78,7 @@ class Downloader:
     - Timestamped raw file saving
     """
 
-    def __init__(self, raw_dir: Optional[Path] = None) -> None:
+    def __init__(self, raw_dir: Path | None = None) -> None:
         """
         Initialize the downloader.
 
@@ -152,7 +152,7 @@ class Downloader:
         # Try to parse as JSON
         try:
             text_sample = content[:4096].decode("utf-8", errors="ignore").strip()
-            if text_sample.startswith("{") or text_sample.startswith("["):
+            if text_sample.startswith(("{", "[")):
                 json.loads(content)
                 return "json"
         except (json.JSONDecodeError, UnicodeDecodeError):
@@ -204,7 +204,7 @@ class Downloader:
         Returns:
             Path to the saved file.
         """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
         extension_map = {
             "json": "json",
             "csv": "csv",
@@ -232,10 +232,10 @@ class Downloader:
         session = self._build_session()
 
         try:
-            start_time = datetime.now()
+            start_time = datetime.now(tz=timezone.utc)
 
             # Build request kwargs
-            kwargs: Dict[str, Any] = {
+            kwargs: dict[str, Any] = {
                 "method": curl_request.method,
                 "url": curl_request.url,
                 "headers": curl_request.headers.copy(),
@@ -265,7 +265,7 @@ class Downloader:
             # Execute request
             response = session.request(**kwargs)
 
-            elapsed = (datetime.now() - start_time).total_seconds()
+            elapsed = (datetime.now(tz=timezone.utc) - start_time).total_seconds()
 
             # Detect format
             content_type = response.headers.get("Content-Type", "")
@@ -309,7 +309,7 @@ class Downloader:
                 content_type="",
                 encoding="utf-8",
                 success=False,
-                error=f"Connection error: {str(e)}",
+                error=f"Connection error: {e!s}",
             )
         except requests.exceptions.RequestException as e:
             return DownloadResult(
@@ -320,12 +320,12 @@ class Downloader:
                 content_type="",
                 encoding="utf-8",
                 success=False,
-                error=f"Request failed: {str(e)}",
+                error=f"Request failed: {e!s}",
             )
         finally:
             session.close()
 
-    def get_latest_raw(self) -> Optional[Path]:
+    def get_latest_raw(self) -> Path | None:
         """
         Get the most recently saved raw file.
 
@@ -337,7 +337,7 @@ class Downloader:
         )
         return raw_files[-1] if raw_files else None
 
-    def list_raw_files(self) -> List[Path]:
+    def list_raw_files(self) -> list[Path]:
         """
         List all raw files sorted by modification time (newest first).
 

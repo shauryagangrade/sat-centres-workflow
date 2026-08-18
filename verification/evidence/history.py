@@ -7,7 +7,6 @@ Address and name changes are tracked.
 """
 
 import math
-from typing import Dict, Optional, Tuple
 
 from verification.models import HistoricalEvidence
 
@@ -44,7 +43,7 @@ class HistoricalEvidenceCollector:
         candidate_lon: float,
         candidate_name: str,
         candidate_address: str,
-        previous_data: Optional[Dict] = None,
+        previous_data: dict | None = None,
     ) -> HistoricalEvidence:
         """
         Collect historical evidence.

@@ -11,7 +11,8 @@ Usage:
     results = manager.geocode("Legacy School Bangalore India")
 """
 
-from typing import Dict, List, Optional, Protocol
+import logging
+from typing import Protocol
 
 from cache.cache_manager import CacheManager
 from config import settings
@@ -21,11 +22,13 @@ from providers.nominatim import NominatimProvider
 from providers.overpass import OverpassProvider
 from providers.photon import PhotonProvider
 
+logger = logging.getLogger(__name__)
+
 
 class GeocodeProvider(Protocol):
     """Protocol for geocoding providers."""
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]: ...
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]: ...
     def close(self) -> None: ...
 
 
@@ -38,7 +41,7 @@ class ProviderManager:
     2. Multi-provider mode: queries all providers for consensus evidence
     """
 
-    def __init__(self, cache: Optional[CacheManager] = None) -> None:
+    def __init__(self, cache: CacheManager | None = None) -> None:
         """
         Initialize the provider manager.
 
@@ -48,7 +51,7 @@ class ProviderManager:
         self.cache = cache or CacheManager()
 
         # Initialize providers in order
-        self._providers: Dict[str, GeocodeProvider] = {
+        self._providers: dict[str, GeocodeProvider] = {
             "nominatim": NominatimProvider(),
             "photon": PhotonProvider(),
             "geoapify": GeoapifyProvider(),
@@ -59,10 +62,10 @@ class ProviderManager:
         self._provider_order = settings.GEOCODING.PROVIDER_ORDER
 
         # Stats
-        self._stats: Dict[str, int] = {name: 0 for name in self._provider_order}
+        self._stats: dict[str, int] = {name: 0 for name in self._provider_order}
         self._cache_hits: int = 0
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]:
         """
         Geocode a query using the provider chain with caching (fallback mode).
 
@@ -112,7 +115,8 @@ class ProviderManager:
                     self.cache.set("geocode", cache_key, serializable)
 
                     return results
-            except Exception:
+            except Exception:  # noqa: BLE001
+                logger.debug("Provider %s failed, trying next", provider_name)
                 # Provider failed, try next
                 continue
 
@@ -120,7 +124,7 @@ class ProviderManager:
 
     def geocode_all_providers(
         self, query: str, limit: int = 5
-    ) -> Dict[str, List[GeocodeCandidate]]:
+    ) -> dict[str, list[GeocodeCandidate]]:
         """
         Geocode a query against ALL providers for consensus evidence.
 
@@ -135,7 +139,7 @@ class ProviderManager:
         Returns:
             Dict mapping provider name to its list of candidates.
         """
-        all_results: Dict[str, List[GeocodeCandidate]] = {}
+        all_results: dict[str, list[GeocodeCandidate]] = {}
 
         for provider_name in self._provider_order:
             provider = self._providers.get(provider_name)
@@ -147,14 +151,15 @@ class ProviderManager:
                 if results:
                     self._stats[provider_name] += 1
                     all_results[provider_name] = results
-            except Exception:
+            except Exception:  # noqa: BLE001
+                logger.debug("Provider %s failed, trying next", provider_name)
                 continue
 
         return all_results
 
     def geocode_batch(
-        self, queries: Dict[str, List[str]], limit: int = 5
-    ) -> Dict[str, List[GeocodeCandidate]]:
+        self, queries: dict[str, list[str]], limit: int = 5
+    ) -> dict[str, list[GeocodeCandidate]]:
         """
         Geocode multiple queries with caching.
 
@@ -165,7 +170,7 @@ class ProviderManager:
         Returns:
             Dictionary mapping IDs to geocode results.
         """
-        results: Dict[str, List[GeocodeCandidate]] = {}
+        results: dict[str, list[GeocodeCandidate]] = {}
 
         for item_id, query_list in queries.items():
             for query in query_list:
@@ -178,7 +183,7 @@ class ProviderManager:
         return results
 
     @property
-    def stats(self) -> Dict[str, int]:
+    def stats(self) -> dict[str, int]:
         """Get provider usage statistics."""
         return self._stats.copy()
 

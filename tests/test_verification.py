@@ -9,12 +9,8 @@ Unit tests for the verification pipeline:
 - Full pipeline integration
 """
 
-import math
-
-import pytest
-
 from verification.confidence import ConfidenceCalculator, ConfidenceResult
-from verification.decision_engine import Decision, DecisionEngine, VerificationState
+from verification.decision_engine import DecisionEngine, VerificationState
 from verification.evidence.geography import (
     GeographyEvidenceCollector,
     _haversine_distance,
@@ -27,12 +23,11 @@ from verification.evidence.providers import (
     ProviderEvidenceCollector,
     _coordinate_variance,
 )
-from verification.evidence.text import TextEvidenceCollector, _normalize_text
+from verification.evidence.text import TextEvidenceCollector
 from verification.fusion import EvidenceFusion, FusionScore
 from verification.models import (
     CandidateEvidence,
     GeographyEvidence,
-    HistoricalEvidence,
     PlaceTypeEvidence,
     ProviderEvidence,
     TextEvidence,
@@ -40,7 +35,6 @@ from verification.models import (
 )
 from verification.report import AuditReportGenerator
 from verification.verifier import LocationVerifier
-
 
 # ============================================================
 # Text Evidence Tests
@@ -62,7 +56,11 @@ class TestTextEvidenceCollector:
         assert evidence.city_similarity >= 0.95
 
     def test_fuzzy_name_match(self):
-        ref = {"name": "Legacy International School", "city": "Bangalore", "country": "India"}
+        ref = {
+            "name": "Legacy International School",
+            "city": "Bangalore",
+            "country": "India",
+        }
         evidence = self.collector.collect(
             ref, "Legacy School International", "", "Bangalore", "", "India"
         )
@@ -91,16 +89,12 @@ class TestTextEvidenceCollector:
 
     def test_postal_code_exact(self):
         ref = {"name": "Test", "postal_code": "560001"}
-        evidence = self.collector.collect(
-            ref, "Test", "", "", "", "", "560001"
-        )
+        evidence = self.collector.collect(ref, "Test", "", "", "", "", "560001")
         assert evidence.postal_similarity == 1.0
 
     def test_postal_code_prefix(self):
         ref = {"name": "Test", "postal_code": "560001"}
-        evidence = self.collector.collect(
-            ref, "Test", "", "", "", "", "5600"
-        )
+        evidence = self.collector.collect(ref, "Test", "", "", "", "", "5600")
         assert evidence.postal_similarity == 0.5
 
 
@@ -270,7 +264,11 @@ class TestHistoricalEvidenceCollector:
         assert evidence.large_movement is True
 
     def test_name_changed(self):
-        prev = {"latitude": 12.97, "longitude": 77.59, "name": "Completely Different Name"}
+        prev = {
+            "latitude": 12.97,
+            "longitude": 77.59,
+            "name": "Completely Different Name",
+        }
         evidence = self.collector.collect(12.97, 77.59, "New School Name", "Addr", prev)
         assert evidence.name_changed is True
 
@@ -288,9 +286,15 @@ class TestEvidenceFusion:
 
     def test_high_quality_fusion(self):
         evidence = CandidateEvidence(
-            text=TextEvidence(name_similarity=0.95, city_similarity=1.0, country_similarity=1.0),
-            geography=GeographyEvidence(on_land=True, reverse_geocode_match=True, distance_from_city_center=0.5),
-            provider_evidence=ProviderEvidence(consensus_ratio=1.0, providers_agreeing=3, providers_total=3),
+            text=TextEvidence(
+                name_similarity=0.95, city_similarity=1.0, country_similarity=1.0
+            ),
+            geography=GeographyEvidence(
+                on_land=True, reverse_geocode_match=True, distance_from_city_center=0.5
+            ),
+            provider_evidence=ProviderEvidence(
+                consensus_ratio=1.0, providers_agreeing=3, providers_total=3
+            ),
             place_type=PlaceTypeEvidence(is_educational=True, confidence=0.9),
         )
         score = self.fusion.fuse(evidence)
@@ -298,9 +302,13 @@ class TestEvidenceFusion:
 
     def test_low_quality_fusion(self):
         evidence = CandidateEvidence(
-            text=TextEvidence(name_similarity=0.2, city_similarity=0.1, country_similarity=0.0),
+            text=TextEvidence(
+                name_similarity=0.2, city_similarity=0.1, country_similarity=0.0
+            ),
             geography=GeographyEvidence(on_land=True, distance_from_city_center=200.0),
-            provider_evidence=ProviderEvidence(consensus_ratio=0.3, providers_agreeing=1, providers_total=3),
+            provider_evidence=ProviderEvidence(
+                consensus_ratio=0.3, providers_agreeing=1, providers_total=3
+            ),
             place_type=PlaceTypeEvidence(is_negative_type=True),
         )
         score = self.fusion.fuse(evidence)
@@ -309,7 +317,9 @@ class TestEvidenceFusion:
     def test_ranking(self):
         good = CandidateEvidence(
             candidate_id="good",
-            text=TextEvidence(name_similarity=0.95, city_similarity=1.0, country_similarity=1.0),
+            text=TextEvidence(
+                name_similarity=0.95, city_similarity=1.0, country_similarity=1.0
+            ),
             geography=GeographyEvidence(on_land=True),
             place_type=PlaceTypeEvidence(is_educational=True),
         )
@@ -353,12 +363,10 @@ class TestConfidenceCalculator:
 
     def test_uncertainty_increases_with_contradictions(self):
         fusion_good = FusionScore(
-            total_score=0.7, evidence_strength=1.0,
-            positive_count=5, negative_count=0
+            total_score=0.7, evidence_strength=1.0, positive_count=5, negative_count=0
         )
         fusion_bad = FusionScore(
-            total_score=0.7, evidence_strength=0.5,
-            positive_count=3, negative_count=3
+            total_score=0.7, evidence_strength=0.5, positive_count=3, negative_count=3
         )
         evidence = CandidateEvidence()
         r1 = self.calc.calculate(fusion_good, evidence)
@@ -379,9 +387,13 @@ class TestDecisionEngine:
 
     def test_verified_decision(self):
         evidence = CandidateEvidence(
-            text=TextEvidence(name_similarity=0.95, city_similarity=1.0, country_similarity=1.0),
+            text=TextEvidence(
+                name_similarity=0.95, city_similarity=1.0, country_similarity=1.0
+            ),
             geography=GeographyEvidence(on_land=True, reverse_geocode_match=True),
-            provider_evidence=ProviderEvidence(consensus_ratio=1.0, providers_agreeing=3, providers_total=3),
+            provider_evidence=ProviderEvidence(
+                consensus_ratio=1.0, providers_agreeing=3, providers_total=3
+            ),
             place_type=PlaceTypeEvidence(is_educational=True, confidence=0.9),
         )
         decision, _, _ = self.engine.decide_single(evidence)
@@ -395,7 +407,9 @@ class TestDecisionEngine:
         evidence = CandidateEvidence(
             text=TextEvidence(name_similarity=0.1, country_similarity=0.0),
             geography=GeographyEvidence(on_land=True),
-            place_type=PlaceTypeEvidence(is_negative_type=True, negative_type_detail="Residential"),
+            place_type=PlaceTypeEvidence(
+                is_negative_type=True, negative_type_detail="Residential"
+            ),
         )
         decision, _, _ = self.engine.decide_single(evidence)
         assert decision.state == VerificationState.REJECTED
@@ -412,9 +426,13 @@ class TestDecisionEngine:
     def test_selects_best_candidate(self):
         good = CandidateEvidence(
             candidate_id="good",
-            text=TextEvidence(name_similarity=0.95, city_similarity=1.0, country_similarity=1.0),
+            text=TextEvidence(
+                name_similarity=0.95, city_similarity=1.0, country_similarity=1.0
+            ),
             geography=GeographyEvidence(on_land=True),
-            provider_evidence=ProviderEvidence(consensus_ratio=1.0, providers_agreeing=3, providers_total=3),
+            provider_evidence=ProviderEvidence(
+                consensus_ratio=1.0, providers_agreeing=3, providers_total=3
+            ),
             place_type=PlaceTypeEvidence(is_educational=True),
         )
         bad = CandidateEvidence(
@@ -510,7 +528,6 @@ class TestAuditReportGenerator:
         self.generator = AuditReportGenerator()
 
     def test_generate_entry(self):
-        from verification.confidence import ConfidenceResult
         from verification.fusion import FusionScore
 
         evidence = CandidateEvidence(
@@ -531,9 +548,7 @@ class TestAuditReportGenerator:
         assert len(entry.positive_signals) > 0
 
     def test_text_report_format(self):
-        from verification.confidence import ConfidenceResult
         from verification.fusion import FusionScore
-        from verification.models import VerificationResult
 
         evidence = CandidateEvidence(
             candidate_id="c1",

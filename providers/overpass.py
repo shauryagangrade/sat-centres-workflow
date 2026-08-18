@@ -12,7 +12,7 @@ Usage:
 """
 
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -30,7 +30,7 @@ class OverpassProvider:
 
     DEFAULT_OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
-    def __init__(self, overpass_url: Optional[str] = None) -> None:
+    def __init__(self, overpass_url: str | None = None) -> None:
         """
         Initialize the Overpass provider.
 
@@ -56,7 +56,7 @@ class OverpassProvider:
             time.sleep(self._min_interval - elapsed)
         self._last_request_time = time.time()
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]:
         """
         Search for educational institutions matching the query.
 
@@ -109,7 +109,7 @@ class OverpassProvider:
         out center body;
         """
 
-    def _parse_element(self, element: Dict[str, Any]) -> GeocodeCandidate:
+    def _parse_element(self, element: dict[str, Any]) -> GeocodeCandidate:
         """Parse an Overpass element into a GeocodeCandidate."""
         tags = element.get("tags", {})
 
@@ -130,7 +130,7 @@ class OverpassProvider:
             raw=element,
         )
 
-    def _build_address(self, tags: Dict[str, Any]) -> str:
+    def _build_address(self, tags: dict[str, Any]) -> str:
         """Build address from OSM addr:* tags."""
         parts = [
             tags.get("addr:housenumber", ""),

@@ -12,7 +12,7 @@ Usage:
 """
 
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -50,7 +50,7 @@ class NominatimProvider:
             time.sleep(self._min_interval - elapsed)
         self._last_request_time = time.time()
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]:
         """
         Geocode a query string.
 
@@ -63,7 +63,7 @@ class NominatimProvider:
         """
         self._respect_rate_limit()
 
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "q": query,
             "format": "jsonv2",
             "limit": limit,
@@ -81,7 +81,7 @@ class NominatimProvider:
 
         return [self._parse_result(item) for item in data]
 
-    def _parse_result(self, item: Dict[str, Any]) -> GeocodeCandidate:
+    def _parse_result(self, item: dict[str, Any]) -> GeocodeCandidate:
         """Parse a Nominatim result into a GeocodeCandidate."""
         address = item.get("address", {})
 
@@ -98,7 +98,7 @@ class NominatimProvider:
             raw=item,
         )
 
-    def _build_address(self, address: Dict[str, Any]) -> str:
+    def _build_address(self, address: dict[str, Any]) -> str:
         """Build a human-readable address from Nominatim address components."""
         parts = [
             address.get("house_number", ""),

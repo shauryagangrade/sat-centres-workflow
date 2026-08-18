@@ -16,7 +16,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, ClassVar
 
 from config import settings
 from processing.normalizer import SatCentre
@@ -35,7 +35,7 @@ class SchemaTransformer:
     4. Supports field renaming (e.g., "name" -> "centre_name")
     """
 
-    def __init__(self, output_dir: Optional[Path] = None) -> None:
+    def __init__(self, output_dir: Path | None = None) -> None:
         """
         Initialize the schema transformer.
 
@@ -46,8 +46,8 @@ class SchemaTransformer:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def infer_schema(
-        self, sample: Dict[str, Any], centres: List[SatCentre]
-    ) -> Dict[str, Any]:
+        self, sample: dict[str, Any], centres: list[SatCentre]
+    ) -> dict[str, Any]:
         """
         Infer the mapping between user's sample schema and available fields.
 
@@ -71,7 +71,7 @@ class SchemaTransformer:
         flat_centre = self._flatten_dict(sample_record)
         flat_raw = self._flatten_dict(raw_record)
 
-        schema_map: Dict[str, Any] = {}
+        schema_map: dict[str, Any] = {}
 
         for user_field, sample_value in flat_sample.items():
             # Try to find a matching field in the normalized data
@@ -83,9 +83,7 @@ class SchemaTransformer:
                 template = self._detect_url_template(sample_value)
                 if template:
                     # Store both template and original for fallback
-                    schema_map[user_field] = (
-                        f"url_template:{template}|||{sample_value}"
-                    )
+                    schema_map[user_field] = f"url_template:{template}|||{sample_value}"
                 else:
                     # Preserve literal string values from the sample
                     schema_map[user_field] = f"literal:{sample_value}"
@@ -94,10 +92,10 @@ class SchemaTransformer:
 
     def transform(
         self,
-        centres: List[SatCentre],
-        sample: Dict[str, Any],
-        schema_map: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
+        centres: list[SatCentre],
+        sample: dict[str, Any],
+        schema_map: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Transform centres to match the user's desired schema.
 
@@ -117,7 +115,7 @@ class SchemaTransformer:
         for field, source in schema_map.items():
             logger.info(f"  {field} <- {source}")
 
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
         for centre in centres:
             centre_dict = centre.to_dict()
             flat_centre = self._flatten_dict(centre_dict)
@@ -131,8 +129,8 @@ class SchemaTransformer:
 
     def transform_to_json(
         self,
-        centres: List[SatCentre],
-        sample: Dict[str, Any],
+        centres: list[SatCentre],
+        sample: dict[str, Any],
         filename: str = "locations.json",
     ) -> Path:
         """
@@ -151,7 +149,7 @@ class SchemaTransformer:
 
     def save(
         self,
-        data: List[Dict[str, Any]],
+        data: list[dict[str, Any]],
         filename: str = "locations.json",
     ) -> Path:
         """
@@ -173,8 +171,8 @@ class SchemaTransformer:
         return file_path
 
     def _flatten_dict(
-        self, d: Dict[str, Any], parent_key: str = "", sep: str = "."
-    ) -> Dict[str, Any]:
+        self, d: dict[str, Any], parent_key: str = "", sep: str = "."
+    ) -> dict[str, Any]:
         """
         Flatten a nested dictionary.
 
@@ -186,7 +184,7 @@ class SchemaTransformer:
         Returns:
             Flattened dictionary.
         """
-        items: List[Tuple[str, Any]] = []
+        items: list[tuple[str, Any]] = []
         for k, v in d.items():
             new_key = f"{parent_key}{sep}{k}" if parent_key else k
             if isinstance(v, dict):
@@ -199,7 +197,7 @@ class SchemaTransformer:
         return dict(items)
 
     # Common field name aliases -> canonical SatCentre field names
-    FIELD_ALIASES: Dict[str, str] = {
+    FIELD_ALIASES: ClassVar[dict[str, str]] = {
         "lat": "latitude",
         "lng": "longitude",
         "lon": "longitude",
@@ -223,9 +221,9 @@ class SchemaTransformer:
     def _find_source(
         self,
         user_field: str,
-        flat_centre: Dict[str, Any],
-        flat_raw: Dict[str, Any],
-    ) -> Optional[str]:
+        flat_centre: dict[str, Any],
+        flat_raw: dict[str, Any],
+    ) -> str | None:
         """
         Find the best source field for a user's desired field.
 
@@ -255,10 +253,10 @@ class SchemaTransformer:
     def _apply_schema(
         self,
         centre: SatCentre,
-        schema_map: Dict[str, Any],
-        flat_centre: Dict[str, Any],
-        flat_raw: Dict[str, Any],
-    ) -> Optional[Dict[str, Any]]:
+        schema_map: dict[str, Any],
+        flat_centre: dict[str, Any],
+        flat_raw: dict[str, Any],
+    ) -> dict[str, Any] | None:
         """
         Apply the schema mapping to a single centre.
 
@@ -272,17 +270,17 @@ class SchemaTransformer:
             Transformed dictionary, or None if transformation fails.
         """
         try:
-            result: Dict[str, Any] = {}
+            result: dict[str, Any] = {}
             for user_field, source in schema_map.items():
                 value = self._resolve_source(source, flat_centre, flat_raw, centre)
                 self._set_nested(result, user_field, value)
 
             return result
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Failed to transform centre '{centre.name}': {e}")
             return None
 
-    def _detect_url_template(self, value: str) -> Optional[str]:
+    def _detect_url_template(self, value: str) -> str | None:
         """
         Detect if a string is a URL containing coordinates and convert to template.
 
@@ -305,7 +303,7 @@ class SchemaTransformer:
         value = value.strip()
 
         # Check if it looks like a URL
-        if not (value.startswith("http://") or value.startswith("https://")):
+        if not value.startswith(("http://", "https://")):
             return None
 
         # Pattern 1: coordinates as query param value (e.g., ?q=lat,lng)
@@ -324,14 +322,11 @@ class SchemaTransformer:
                     matched_text = match.group(0)
                     # Determine separator between coords in the match
                     sep_match = re.search(
-                        r"[,%]2?C?", matched_text[len(lat_str) :],
+                        r"[,%]2?C?",
+                        matched_text[len(lat_str) :],
                     )
                     sep = sep_match.group(0) if sep_match else ","
-                    template = (
-                        value[:start]
-                        + f"{{lat}}{sep}{{lng}}"
-                        + value[end:]
-                    )
+                    template = value[:start] + f"{{lat}}{sep}{{lng}}" + value[end:]
                     return template
             except ValueError:
                 pass
@@ -381,9 +376,9 @@ class SchemaTransformer:
     def _resolve_source(
         self,
         source: str,
-        flat_centre: Dict[str, Any],
-        flat_raw: Dict[str, Any],
-        centre: Optional[SatCentre] = None,
+        flat_centre: dict[str, Any],
+        flat_raw: dict[str, Any],
+        centre: SatCentre | None = None,
     ) -> Any:
         """
         Resolve a source expression to its value.
@@ -405,16 +400,14 @@ class SchemaTransformer:
             template = parts[0]
             original = parts[1] if len(parts) > 1 else template
             if centre and centre.latitude is not None and centre.longitude is not None:
-                return template.format(
-                    lat=centre.latitude, lng=centre.longitude
-                )
+                return template.format(lat=centre.latitude, lng=centre.longitude)
             return original
         if source.startswith("raw."):
             raw_key = source[4:]
             return flat_raw.get(raw_key)
         return flat_centre.get(source)
 
-    def _set_nested(self, d: Dict[str, Any], key: str, value: Any) -> None:
+    def _set_nested(self, d: dict[str, Any], key: str, value: Any) -> None:
         """
         Set a value in a nested dictionary using dot notation.
 

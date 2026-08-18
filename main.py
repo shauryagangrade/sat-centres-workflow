@@ -22,9 +22,8 @@ import argparse
 import logging
 import sys
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional
 
 
 # Setup logging before imports that might fail
@@ -35,7 +34,9 @@ def setup_logging(log_level: str = "INFO") -> None:
     log_dir = settings.PATHS.LOGS_DIR
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    log_file = log_dir / f"sat_updater_{datetime.now().strftime('%Y%m%d')}.log"
+    log_file = (
+        log_dir / f"sat_updater_{datetime.now(tz=timezone.utc).strftime('%Y%m%d')}.log"
+    )
 
     logging.basicConfig(
         level=getattr(logging, log_level.upper(), logging.INFO),
@@ -199,7 +200,7 @@ def run_download_interactive() -> None:
         "[dim]Tip: Copy from Chrome DevTools Network tab > Right-click request > Copy as cURL[/dim]\n"
     )
 
-    curl_lines: List[str] = []
+    curl_lines: list[str] = []
     console.print("[dim]Paste cURL command (press Enter twice when done):[/dim]")
     while True:
         try:
@@ -249,7 +250,7 @@ def run_transform_interactive() -> None:
         )
     )
 
-    json_lines: List[str] = []
+    json_lines: list[str] = []
     console.print("[dim]Paste sample JSON (press Enter twice when done):[/dim]")
     brace_count = 0
     while True:
@@ -296,9 +297,7 @@ def run_transform_interactive() -> None:
 # ---- Pipeline Step Runners ----
 
 
-def run_download(
-    curl_command: Optional[str] = None, curl_file: Optional[str] = None
-) -> None:
+def run_download(curl_command: str | None = None, curl_file: str | None = None) -> None:
     """Run the download step."""
     from rich.console import Console
 
@@ -327,7 +326,7 @@ def run_download(
             console.print(f"  Saved: {result.file_path}")
         else:
             console.print(f"[red]Download failed: {result.error}[/red]")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -355,7 +354,7 @@ def run_normalize() -> None:
         centres = normalizer.normalize(raw_data)
         path = normalizer.save(centres)
         console.print(f"[green]Normalized {len(centres)} centres -> {path}[/green]")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -378,7 +377,9 @@ def run_geocode(force: bool = False) -> None:
             console.print("[red]No centres found. Run normalize first.[/red]")
             return
 
-        console.print(f"[bold]Geocoding {len(centres)} centres (evidence-based)...[/bold]")
+        console.print(
+            f"[bold]Geocoding {len(centres)} centres (evidence-based)...[/bold]"
+        )
 
         geocoder = CentreGeocoder(force=force)
 
@@ -413,9 +414,13 @@ def run_geocode(force: bool = False) -> None:
                 for entry in r.audit_entries[:1]:
                     console.print(f"    Decision: {entry.decision}")
                     console.print(f"    Confidence: {entry.confidence:.1%}")
-                    console.print(f"    Positive: {', '.join(entry.positive_signals[:3])}")
+                    console.print(
+                        f"    Positive: {', '.join(entry.positive_signals[:3])}"
+                    )
                     if entry.negative_signals:
-                        console.print(f"    Negative: {', '.join(entry.negative_signals[:3])}")
+                        console.print(
+                            f"    Negative: {', '.join(entry.negative_signals[:3])}"
+                        )
 
         normalizer.save(centres)
 
@@ -424,7 +429,7 @@ def run_geocode(force: bool = False) -> None:
         console.print(f"  Cache hits: {stats['cache_hits']}")
 
         geocoder.close()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -462,7 +467,7 @@ def run_validate() -> None:
             console.print(f"  Duplicate IDs: {summary.duplicate_ids}")
 
         normalizer.save(valid)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -502,7 +507,7 @@ def run_update() -> None:
         dup_path = updater.export_duplicates(merged)
         if dup_path:
             console.print(f"[yellow]Duplicates found: {dup_path}[/yellow]")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -517,7 +522,7 @@ def run_reports() -> None:
         from processing.exporter import PipelineStats, ReportExporter
 
         stats = PipelineStats(
-            end_time=datetime.now(),
+            end_time=datetime.now(tz=timezone.utc),
         )
 
         # Try to populate stats from existing data
@@ -530,9 +535,9 @@ def run_reports() -> None:
         exporter = ReportExporter()
         paths = exporter.generate_all(stats)
 
-        for name, path in paths.items():
+        for path in paths.values():
             console.print(f"[green]Generated: {path}[/green]")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
@@ -573,13 +578,13 @@ def run_resume() -> None:
         normalizer.save(centres)
 
         geocoder.close()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
 
 def run_transform(
-    sample_json: Optional[dict] = None, sample_json_file: Optional[str] = None
+    sample_json: dict | None = None, sample_json_file: str | None = None
 ) -> None:
     """Run the schema transform step."""
     import json
@@ -647,18 +652,18 @@ def run_transform(
             f"[green]Transformed {len(transformed)} records -> {path}[/green]"
         )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
 
 
 def run_full_pipeline(
-    curl_command: Optional[str] = None,
-    curl_file: Optional[str] = None,
+    curl_command: str | None = None,
+    curl_file: str | None = None,
     force: bool = False,
     transform: bool = False,
-    sample_json: Optional[dict] = None,
-    sample_json_file: Optional[str] = None,
+    sample_json: dict | None = None,
+    sample_json_file: str | None = None,
 ) -> None:
     """Run the entire pipeline end-to-end."""
     from rich.console import Console
@@ -666,7 +671,7 @@ def run_full_pipeline(
 
     console = Console()
 
-    start_time = datetime.now()
+    start_time = datetime.now(tz=timezone.utc)
     console.print(
         Panel("[bold]SAT Centre Updater — Full Pipeline[/bold]", border_style="cyan")
     )
@@ -706,7 +711,7 @@ def run_full_pipeline(
         console.print("\n[bold cyan]Step 7/7: Schema Transform[/bold cyan]")
         console.print("[yellow]Skipped (use --transform to enable)[/yellow]")
 
-    elapsed = (datetime.now() - start_time).total_seconds()
+    elapsed = (datetime.now(tz=timezone.utc) - start_time).total_seconds()
     console.print(f"\n[bold green]Pipeline completed in {elapsed:.1f}s[/bold green]")
 
 
@@ -763,7 +768,7 @@ def main() -> None:
     except KeyboardInterrupt:
         print("\n[yellow]Interrupted by user.[/yellow]")
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.error(f"Fatal error: {e}")
         logger.error(traceback.format_exc())
         sys.exit(1)

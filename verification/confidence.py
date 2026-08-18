@@ -6,7 +6,6 @@ that reflect actual probability of correctness.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from verification.fusion import FusionScore
 from verification.models import CandidateEvidence
@@ -21,7 +20,7 @@ class ConfidenceResult:
     evidence_quality: float = 0.0
     uncertainty: float = 0.0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "raw_score": self.raw_score,
             "calibrated_confidence": self.calibrated_confidence,
@@ -46,8 +45,8 @@ class ConfidenceCalculator:
 
     def __init__(
         self,
-        sigmoid_steepness: Optional[float] = None,
-        sigmoid_midpoint: Optional[float] = None,
+        sigmoid_steepness: float | None = None,
+        sigmoid_midpoint: float | None = None,
     ) -> None:
         """
         Initialize the confidence calculator.
@@ -94,9 +93,7 @@ class ConfidenceCalculator:
         else:
             result.calibrated_confidence += uncertainty_penalty
 
-        result.calibrated_confidence = max(
-            0.0, min(1.0, result.calibrated_confidence)
-        )
+        result.calibrated_confidence = max(0.0, min(1.0, result.calibrated_confidence))
 
         return result
 
@@ -147,8 +144,8 @@ class ConfidenceCalculator:
 
     def batch_calculate(
         self,
-        candidates: List[tuple],
-    ) -> List[tuple]:
+        candidates: list[tuple],
+    ) -> list[tuple]:
         """
         Calculate confidence for multiple candidates.
 

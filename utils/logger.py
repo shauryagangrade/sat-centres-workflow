@@ -12,8 +12,7 @@ Usage:
 
 import logging
 import sys
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
 
 from config import settings
 
@@ -23,7 +22,7 @@ _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 def get_logger(
     name: str,
-    level: Optional[str] = None,
+    level: str | None = None,
 ) -> logging.Logger:
     """
     Get a configured logger instance.
@@ -58,7 +57,9 @@ def _configure_logger(logger: logging.Logger, level: str) -> None:
     log_dir = settings.PATHS.LOGS_DIR
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    log_file = log_dir / f"sat_updater_{datetime.now().strftime('%Y%m%d')}.log"
+    log_file = (
+        log_dir / f"sat_updater_{datetime.now(tz=timezone.utc).strftime('%Y%m%d')}.log"
+    )
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter(_LOG_FORMAT, _DATE_FORMAT))

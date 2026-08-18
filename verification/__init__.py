@@ -14,7 +14,7 @@ Usage:
     decisions = engine.decide(evidence)
 """
 
+from verification.decision_engine import Decision, DecisionEngine, VerificationState
 from verification.verifier import LocationVerifier
-from verification.decision_engine import DecisionEngine, Decision, VerificationState
 
-__all__ = ["LocationVerifier", "DecisionEngine", "Decision", "VerificationState"]
+__all__ = ["Decision", "DecisionEngine", "LocationVerifier", "VerificationState"]

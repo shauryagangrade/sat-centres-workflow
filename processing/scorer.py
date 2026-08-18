@@ -13,7 +13,7 @@ Usage:
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from rapidfuzz import fuzz
 
@@ -34,7 +34,7 @@ class GeocodeCandidate:
     longitude: float = 0.0
     confidence: float = 0.0
     provider: str = ""
-    raw: Dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -43,11 +43,11 @@ class ScoredCandidate:
 
     candidate: GeocodeCandidate
     score: float = 0.0
-    breakdown: Dict[str, float] = field(default_factory=dict)
+    breakdown: dict[str, float] = field(default_factory=dict)
 
 
 # Weighted field importance
-DEFAULT_WEIGHTS: Dict[str, float] = {
+DEFAULT_WEIGHTS: dict[str, float] = {
     "name": 0.25,
     "address": 0.10,
     "city": 0.20,
@@ -66,7 +66,7 @@ class CandidateScorer:
     combined with provider confidence and optional distance penalty.
     """
 
-    def __init__(self, weights: Optional[Dict[str, float]] = None) -> None:
+    def __init__(self, weights: dict[str, float] | None = None) -> None:
         """
         Initialize the scorer.
 
@@ -77,7 +77,7 @@ class CandidateScorer:
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
     def score(
-        self, reference: Dict[str, str], candidate: GeocodeCandidate
+        self, reference: dict[str, str], candidate: GeocodeCandidate
     ) -> ScoredCandidate:
         """
         Score a single candidate against a reference dictionary.
@@ -89,7 +89,7 @@ class CandidateScorer:
         Returns:
             ScoredCandidate with score and breakdown.
         """
-        breakdown: Dict[str, float] = {}
+        breakdown: dict[str, float] = {}
 
         # Name match
         ref_name = reference.get("name", "")
@@ -131,8 +131,8 @@ class CandidateScorer:
         )
 
     def best_candidate(
-        self, reference: Dict[str, str], candidates: List[GeocodeCandidate]
-    ) -> Optional[ScoredCandidate]:
+        self, reference: dict[str, str], candidates: list[GeocodeCandidate]
+    ) -> ScoredCandidate | None:
         """
         Find the best matching candidate from a list.
 
@@ -156,8 +156,8 @@ class CandidateScorer:
         return best
 
     def rank_candidates(
-        self, reference: Dict[str, str], candidates: List[GeocodeCandidate]
-    ) -> List[ScoredCandidate]:
+        self, reference: dict[str, str], candidates: list[GeocodeCandidate]
+    ) -> list[ScoredCandidate]:
         """
         Rank all candidates by score (highest first).
 

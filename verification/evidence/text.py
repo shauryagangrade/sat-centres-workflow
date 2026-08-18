@@ -8,7 +8,6 @@ Uses RapidFuzz for fuzzy matching with Unicode normalization.
 
 import re
 import unicodedata
-from typing import Dict, Optional
 
 from rapidfuzz import fuzz
 
@@ -29,7 +28,7 @@ def _normalize_text(text: str) -> str:
 
 
 # Common school name aliases and abbreviations
-_SCHOOL_ALIASES: Dict[str, set] = {
+_SCHOOL_ALIASES: dict[str, set] = {
     "school": {"school", "sch", "sch.", "schools"},
     "international": {"international", "intl", "intl.", "global"},
     "academy": {"academy", "acad", "acad.", "academies"},
@@ -50,7 +49,7 @@ def _detect_alias(name1: str, name2: str) -> bool:
     words1 = set(_normalize_text(name1).split())
     words2 = set(_normalize_text(name2).split())
 
-    for _canonical, aliases in _SCHOOL_ALIASES.items():
+    for aliases in _SCHOOL_ALIASES.values():
         match1 = words1 & aliases
         match2 = words2 & aliases
         if match1 and match2 and match1 != match2:
@@ -84,7 +83,7 @@ class TextEvidenceCollector:
 
     def collect(
         self,
-        reference: Dict[str, str],
+        reference: dict[str, str],
         candidate_name: str,
         candidate_address: str,
         candidate_city: str,
@@ -129,7 +128,9 @@ class TextEvidenceCollector:
 
         # Country similarity (uses canonical normalization)
         ref_country = reference.get("country", "")
-        evidence.country_similarity = self._country_score(ref_country, candidate_country)
+        evidence.country_similarity = self._country_score(
+            ref_country, candidate_country
+        )
 
         # Postal code similarity
         ref_postal = reference.get("postal_code", "")
@@ -148,7 +149,9 @@ class TextEvidenceCollector:
         evidence.alias_detected = _detect_alias(ref_name, candidate_name)
 
         # Transliteration detection
-        evidence.transliteration_match = _detect_transliteration(ref_name, candidate_name)
+        evidence.transliteration_match = _detect_transliteration(
+            ref_name, candidate_name
+        )
 
         return evidence
 

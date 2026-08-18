@@ -6,7 +6,7 @@ Supports all common cURL flags from Chrome, Firefox, and Safari DevTools.
 
 Usage:
     from processing.curl_parser import CurlParser
-    
+
     parser = CurlParser()
     request = parser.parse(curl_command)
     print(request.url, request.method)
@@ -17,7 +17,7 @@ import re
 import shlex
 import urllib.parse
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 @dataclass
@@ -26,23 +26,23 @@ class CurlRequest:
 
     method: str = "GET"
     url: str = ""
-    headers: Dict[str, str] = field(default_factory=dict)
-    cookies: Dict[str, str] = field(default_factory=dict)
-    query_params: Dict[str, str] = field(default_factory=dict)
-    data: Optional[str] = None
-    json_data: Optional[Dict[str, Any]] = None
-    form_data: Optional[Dict[str, str]] = None
-    auth: Optional[tuple] = None
+    headers: dict[str, str] = field(default_factory=dict)
+    cookies: dict[str, str] = field(default_factory=dict)
+    query_params: dict[str, str] = field(default_factory=dict)
+    data: str | None = None
+    json_data: dict[str, Any] | None = None
+    form_data: dict[str, str] | None = None
+    auth: tuple | None = None
     compressed: bool = False
     insecure: bool = False
-    user_agent: Optional[str] = None
-    referer: Optional[str] = None
-    origin: Optional[str] = None
-    content_type: Optional[str] = None
-    accept: Optional[str] = None
+    user_agent: str | None = None
+    referer: str | None = None
+    origin: str | None = None
+    content_type: str | None = None
+    accept: str | None = None
     raw_curl: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert request to dictionary."""
         return {
             "method": self.method,
@@ -202,11 +202,7 @@ class CurlParser:
             if part.startswith("-"):
                 continue
             # Check if this looks like a URL
-            if (
-                part.startswith("http://")
-                or part.startswith("https://")
-                or part.startswith("'http")
-            ):
+            if part.startswith(("http://", "https://", "'http")):
                 # Remove surrounding quotes if present
                 url = part.strip("'\"")
                 return url
@@ -221,7 +217,7 @@ class CurlParser:
 
         raise ValueError("Could not extract URL from cURL command")
 
-    def _extract_headers(self, command: str) -> Dict[str, str]:
+    def _extract_headers(self, command: str) -> dict[str, str]:
         """Extract headers from cURL command."""
         headers = {}
 
@@ -240,7 +236,7 @@ class CurlParser:
 
         return headers
 
-    def _extract_cookies(self, command: str) -> Dict[str, str]:
+    def _extract_cookies(self, command: str) -> dict[str, str]:
         """Extract cookies from cURL command."""
         cookies = {}
 
@@ -318,7 +314,7 @@ class CurlParser:
 
         return raw_data, json_data, form_data
 
-    def _extract_auth(self, command: str) -> Optional[tuple]:
+    def _extract_auth(self, command: str) -> tuple | None:
         """Extract authentication credentials from cURL command."""
         # Pattern for -u or --user
         auth_patterns = [
@@ -347,7 +343,7 @@ class CurlParser:
 
         return False
 
-    def _extract_query_params(self, url: str) -> Dict[str, str]:
+    def _extract_query_params(self, url: str) -> dict[str, str]:
         """Extract query parameters from URL."""
         params = {}
 

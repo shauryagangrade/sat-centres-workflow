@@ -16,7 +16,7 @@ import json
 import sqlite3
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from config import settings
 
@@ -32,7 +32,7 @@ class CacheManager:
     - 'manual': Manual review overrides
     """
 
-    def __init__(self, cache_dir: Optional[Path] = None) -> None:
+    def __init__(self, cache_dir: Path | None = None) -> None:
         """
         Initialize the cache manager.
 
@@ -67,7 +67,7 @@ class CacheManager:
         """Create a new database connection."""
         return sqlite3.connect(str(self.db_path))
 
-    def get(self, namespace: str, key: str) -> Optional[Any]:
+    def get(self, namespace: str, key: str) -> Any | None:
         """
         Retrieve a cached value if it exists and hasn't expired.
 
@@ -104,9 +104,7 @@ class CacheManager:
             except (json.JSONDecodeError, TypeError):
                 return value_str
 
-    def set(
-        self, namespace: str, key: str, value: Any, ttl: Optional[int] = None
-    ) -> None:
+    def set(self, namespace: str, key: str, value: Any, ttl: int | None = None) -> None:
         """
         Store a value in the cache.
 
@@ -211,7 +209,7 @@ class CacheManager:
             conn.commit()
             return cursor.rowcount
 
-    def stats(self) -> Dict[str, int]:
+    def stats(self) -> dict[str, int]:
         """
         Get cache statistics by namespace.
 

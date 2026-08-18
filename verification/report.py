@@ -6,8 +6,7 @@ Every decision must be transparent and auditable.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Dict, List, Optional
+from datetime import datetime, timezone
 
 from verification.confidence import ConfidenceResult
 from verification.fusion import FusionScore
@@ -24,12 +23,12 @@ class AuditEntry:
     longitude: float = 0.0
     decision: str = ""
     confidence: float = 0.0
-    positive_signals: List[str] = field(default_factory=list)
-    negative_signals: List[str] = field(default_factory=list)
-    category_scores: Dict[str, float] = field(default_factory=dict)
+    positive_signals: list[str] = field(default_factory=list)
+    negative_signals: list[str] = field(default_factory=list)
+    category_scores: dict[str, float] = field(default_factory=dict)
     raw_score: float = 0.0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "candidate_id": self.candidate_id,
             "provider": self.provider,
@@ -51,11 +50,11 @@ class AuditReport:
     reference_id: str = ""
     reference_name: str = ""
     timestamp: str = ""
-    entries: List[AuditEntry] = field(default_factory=list)
-    best_candidate_id: Optional[str] = None
+    entries: list[AuditEntry] = field(default_factory=list)
+    best_candidate_id: str | None = None
     summary: str = ""
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "reference_id": self.reference_id,
             "reference_name": self.reference_name,
@@ -109,7 +108,7 @@ class AuditReportGenerator:
     def generate_report(
         self,
         result: VerificationResult,
-        entries: List[AuditEntry],
+        entries: list[AuditEntry],
     ) -> AuditReport:
         """
         Generate a complete audit report for a verification result.
@@ -124,16 +123,14 @@ class AuditReportGenerator:
         report = AuditReport(
             reference_id=result.reference_id,
             reference_name=result.reference_name,
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(tz=timezone.utc).isoformat(),
             entries=entries,
             best_candidate_id=result.best_candidate_id,
         )
 
         # Generate summary
         if entries:
-            best = next(
-                (e for e in entries if e.decision != "Rejected"), entries[0]
-            )
+            best = next((e for e in entries if e.decision != "Rejected"), entries[0])
             report.summary = self._format_summary(best)
 
         return report
@@ -161,9 +158,7 @@ class AuditReportGenerator:
 
             lines.append(f"\n--- Candidate {i}{marker} ---")
             lines.append(f"  Provider: {entry.provider}")
-            lines.append(
-                f"  Location: ({entry.latitude:.6f}, {entry.longitude:.6f})"
-            )
+            lines.append(f"  Location: ({entry.latitude:.6f}, {entry.longitude:.6f})")
             lines.append(f"  Decision: {entry.decision}")
             lines.append(f"  Confidence: {entry.confidence:.1%}")
             lines.append(f"  Raw Score: {entry.raw_score:.4f}")

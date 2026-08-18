@@ -6,7 +6,7 @@ for each candidate. This is the primary entry point for verification.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from verification.evidence.geography import GeographyEvidenceCollector
 from verification.evidence.history import HistoricalEvidenceCollector
@@ -41,10 +41,10 @@ class LocationVerifier:
 
     def verify(
         self,
-        reference: Dict[str, str],
-        candidates: List[Dict[str, Any]],
-        provider_results: Optional[Dict[str, List[Dict]]] = None,
-        previous_data: Optional[Dict] = None,
+        reference: dict[str, str],
+        candidates: list[dict[str, Any]],
+        provider_results: dict[str, list[dict]] | None = None,
+        previous_data: dict | None = None,
     ) -> VerificationResult:
         """
         Verify all candidates for a reference location.
@@ -91,12 +91,12 @@ class LocationVerifier:
 
     def _collect_evidence(
         self,
-        reference: Dict[str, str],
-        candidate: Dict[str, Any],
+        reference: dict[str, str],
+        candidate: dict[str, Any],
         candidate_id: str,
-        all_candidates: List[Dict],
-        provider_results: Optional[Dict[str, List[Dict]]],
-        previous_data: Optional[Dict],
+        all_candidates: list[dict],
+        provider_results: dict[str, list[dict]] | None,
+        previous_data: dict | None,
     ) -> CandidateEvidence:
         """
         Collect all evidence for a single candidate.
@@ -123,7 +123,7 @@ class LocationVerifier:
                 candidate_postal=candidate.get("postal_code", ""),
                 candidate_street=candidate.get("street", ""),
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Text evidence collection failed: {e}")
             evidence.skipped_collectors.append("text")
 
@@ -143,7 +143,7 @@ class LocationVerifier:
                     else None
                 ),
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Geography evidence collection failed: {e}")
             evidence.skipped_collectors.append("geography")
 
@@ -154,7 +154,7 @@ class LocationVerifier:
                 all_candidates=all_candidates,
                 provider_results=provider_results,
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Provider evidence collection failed: {e}")
             evidence.skipped_collectors.append("provider")
 
@@ -165,7 +165,7 @@ class LocationVerifier:
                 candidate_address=candidate.get("address", ""),
                 raw_data=candidate.get("raw"),
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Place type evidence collection failed: {e}")
             evidence.skipped_collectors.append("place_type")
 
@@ -178,7 +178,7 @@ class LocationVerifier:
                 candidate_address=candidate.get("address", ""),
                 previous_data=previous_data,
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Historical evidence collection failed: {e}")
             evidence.skipped_collectors.append("history")
 

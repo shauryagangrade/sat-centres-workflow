@@ -12,7 +12,7 @@ Usage:
 """
 
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -50,7 +50,7 @@ class PhotonProvider:
             time.sleep(self._min_interval - elapsed)
         self._last_request_time = time.time()
 
-    def geocode(self, query: str, limit: int = 5) -> List[GeocodeCandidate]:
+    def geocode(self, query: str, limit: int = 5) -> list[GeocodeCandidate]:
         """
         Geocode a query string.
 
@@ -63,7 +63,7 @@ class PhotonProvider:
         """
         self._respect_rate_limit()
 
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "q": query,
             "limit": limit,
         }
@@ -80,7 +80,7 @@ class PhotonProvider:
         features = data.get("features", [])
         return [self._parse_feature(f) for f in features]
 
-    def _parse_feature(self, feature: Dict[str, Any]) -> GeocodeCandidate:
+    def _parse_feature(self, feature: dict[str, Any]) -> GeocodeCandidate:
         """Parse a Photon GeoJSON feature into a GeocodeCandidate."""
         props = feature.get("properties", {})
         geom = feature.get("geometry", {})
@@ -99,7 +99,7 @@ class PhotonProvider:
             raw=props,
         )
 
-    def _build_address(self, props: Dict[str, Any]) -> str:
+    def _build_address(self, props: dict[str, Any]) -> str:
         """Build a human-readable address from Photon properties."""
         parts = [
             props.get("housenumber", ""),

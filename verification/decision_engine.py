@@ -8,11 +8,10 @@ Needs Review, Low Confidence, Rejected.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
 
 from verification.confidence import ConfidenceCalculator, ConfidenceResult
 from verification.fusion import EvidenceFusion, FusionScore
-from verification.models import CandidateEvidence, VerificationResult
+from verification.models import CandidateEvidence
 
 
 class VerificationState(Enum):
@@ -27,7 +26,7 @@ class VerificationState(Enum):
 
 
 # Default thresholds for each state
-DEFAULT_THRESHOLDS: Dict[VerificationState, float] = {
+DEFAULT_THRESHOLDS: dict[VerificationState, float] = {
     VerificationState.VERIFIED: 0.85,
     VerificationState.HIGHLY_LIKELY: 0.70,
     VerificationState.LIKELY: 0.55,
@@ -45,9 +44,9 @@ class Decision:
     confidence: float = 0.0
     raw_score: float = 0.0
     is_accepted: bool = False
-    rejection_reasons: List[str] = field(default_factory=list)
+    rejection_reasons: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "state": self.state.value,
             "confidence": self.confidence,
@@ -63,14 +62,14 @@ class VerificationDecision:
 
     reference_id: str = ""
     reference_name: str = ""
-    best_candidate: Optional[CandidateEvidence] = None
-    best_decision: Optional[Decision] = None
-    all_decisions: List[Tuple[CandidateEvidence, Decision]] = field(
+    best_candidate: CandidateEvidence | None = None
+    best_decision: Decision | None = None
+    all_decisions: list[tuple[CandidateEvidence, Decision]] = field(
         default_factory=list
     )
-    selected_state: Optional[VerificationState] = None
+    selected_state: VerificationState | None = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "reference_id": self.reference_id,
             "reference_name": self.reference_name,
@@ -100,9 +99,9 @@ class DecisionEngine:
 
     def __init__(
         self,
-        fusion: Optional[EvidenceFusion] = None,
-        confidence_calc: Optional[ConfidenceCalculator] = None,
-        thresholds: Optional[Dict[VerificationState, float]] = None,
+        fusion: EvidenceFusion | None = None,
+        confidence_calc: ConfidenceCalculator | None = None,
+        thresholds: dict[VerificationState, float] | None = None,
     ) -> None:
         """
         Initialize the decision engine.
@@ -118,7 +117,7 @@ class DecisionEngine:
 
     def decide_single(
         self, evidence: CandidateEvidence
-    ) -> Tuple[Decision, FusionScore, ConfidenceResult]:
+    ) -> tuple[Decision, FusionScore, ConfidenceResult]:
         """
         Make a decision for a single candidate.
 
@@ -146,7 +145,8 @@ class DecisionEngine:
             state=state,
             confidence=confidence.calibrated_confidence,
             raw_score=fusion_score.total_score,
-            is_accepted=state not in (
+            is_accepted=state
+            not in (
                 VerificationState.REJECTED,
                 VerificationState.LOW_CONFIDENCE,
             ),
@@ -157,7 +157,7 @@ class DecisionEngine:
 
     def decide(
         self,
-        evidence_list: List[CandidateEvidence],
+        evidence_list: list[CandidateEvidence],
         reference_id: str = "",
         reference_name: str = "",
     ) -> VerificationDecision:
@@ -188,7 +188,7 @@ class DecisionEngine:
         best_confidence = -1.0
 
         for evidence in evidence_list:
-            decision, fusion_score, confidence = self.decide_single(evidence)
+            decision, _fusion_score, confidence = self.decide_single(evidence)
             result.all_decisions.append((evidence, decision))
 
             # Track best accepted candidate
@@ -219,9 +219,7 @@ class DecisionEngine:
                 return state
         return VerificationState.REJECTED
 
-    def _check_hard_rejections(
-        self, evidence: CandidateEvidence
-    ) -> List[str]:
+    def _check_hard_rejections(self, evidence: CandidateEvidence) -> list[str]:
         """
         Check for hard rejection rules that override confidence.
 
@@ -244,7 +242,10 @@ class DecisionEngine:
             )
 
         # Large historical movement without explanation
-        if evidence.historical.large_movement and not evidence.historical.has_previous_data:
+        if (
+            evidence.historical.large_movement
+            and not evidence.historical.has_previous_data
+        ):
             reasons.append("Large unexplained movement from previous location")
 
         return reasons
