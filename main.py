@@ -416,7 +416,7 @@ def run_geocode(force: bool = False) -> None:
         console.print(f"[green]Geocoded {geocoded}/{len(centres)} centres[/green]")
 
         # Show verification state breakdown
-        states = {}
+        states: dict[str, int] = {}
         for r in results:
             if r.best_decision:
                 state = r.best_decision.state.value
