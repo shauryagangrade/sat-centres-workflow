@@ -305,6 +305,10 @@ def run_download(curl_command: str | None = None, curl_file: str | None = None) 
 
     try:
         from connectors.sat_connector import SatConnector
+        from utils.stats_store import StatsStore
+
+        # New run: discard stats from any previous run
+        StatsStore().clear()
 
         connector = SatConnector()
 
@@ -324,6 +328,16 @@ def run_download(curl_command: str | None = None, curl_file: str | None = None) 
             console.print(f"  Format: {result.response_format}")
             console.print(f"  Size: {len(result.content):,} bytes")
             console.print(f"  Saved: {result.file_path}")
+
+            StatsStore().update(
+                {
+                    "start_time": datetime.now(tz=timezone.utc).isoformat(),
+                    "download_status": result.status_code,
+                    "download_format": result.response_format,
+                    "download_size": len(result.content),
+                    "raw_file_path": str(result.file_path),
+                }
+            )
         else:
             console.print(f"[red]Download failed: {result.error}[/red]")
     except Exception as e:  # noqa: BLE001
@@ -354,6 +368,12 @@ def run_normalize() -> None:
         centres = normalizer.normalize(raw_data)
         path = normalizer.save(centres)
         console.print(f"[green]Normalized {len(centres)} centres -> {path}[/green]")
+
+        from utils.stats_store import StatsStore
+
+        StatsStore().update(
+            {"total_centres": len(centres), "raw_file_path": str(latest)}
+        )
     except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
@@ -428,6 +448,17 @@ def run_geocode(force: bool = False) -> None:
         console.print(f"  API calls: {sum(stats['provider_usage'].values())}")
         console.print(f"  Cache hits: {stats['cache_hits']}")
 
+        from utils.stats_store import StatsStore
+
+        StatsStore().update(
+            {
+                "geocoded_centres": geocoded,
+                "cache_hits": stats["cache_hits"],
+                "api_calls": sum(stats["provider_usage"].values()),
+                "provider_usage": stats["provider_usage"],
+            }
+        )
+
         geocoder.close()
     except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
@@ -465,6 +496,17 @@ def run_validate() -> None:
             console.print(f"  Missing coords: {summary.missing_coords}")
         if summary.duplicate_ids:
             console.print(f"  Duplicate IDs: {summary.duplicate_ids}")
+
+        from dataclasses import asdict
+
+        from utils.stats_store import StatsStore
+
+        StatsStore().update(
+            {
+                "failed_centres": summary.failed,
+                "validation_summary": asdict(summary),
+            }
+        )
 
         normalizer.save(valid)
     except Exception as e:  # noqa: BLE001
@@ -504,12 +546,38 @@ def run_update() -> None:
         console.print(f"  Removed: {summary.removed_centres}")
         console.print(f"  Unchanged: {summary.unchanged_centres}")
 
+        from utils.stats_store import StatsStore
+
+        StatsStore().update(
+            {
+                "new_centres": summary.new_centres,
+                "updated_centres": summary.updated_centres,
+                "removed_centres": summary.removed_centres,
+                "unchanged_centres": summary.unchanged_centres,
+            }
+        )
+
         dup_path = updater.export_duplicates(merged)
         if dup_path:
             console.print(f"[yellow]Duplicates found: {dup_path}[/yellow]")
     except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())
+
+
+def _read_first_column(path: Path) -> list[str]:
+    """Return all values from the first CSV column (excluding header)."""
+    import csv
+
+    values: list[str] = []
+    if path.exists():
+        with open(path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            next(reader, None)
+            for row in reader:
+                if row:
+                    values.append(row[0])
+    return values
 
 
 def run_reports() -> None:
@@ -519,18 +587,71 @@ def run_reports() -> None:
     console = Console()
 
     try:
+        from config import settings
         from processing.exporter import PipelineStats, ReportExporter
+        from utils.stats_store import StatsStore
+
+        recorded = StatsStore().load()
+
+        def _parse_dt(value: str | None) -> datetime | None:
+            if not value:
+                return None
+            try:
+                return datetime.fromisoformat(value)
+            except ValueError:
+                return None
 
         stats = PipelineStats(
+            start_time=_parse_dt(recorded.get("start_time"))
+            or datetime.now(tz=timezone.utc),
             end_time=datetime.now(tz=timezone.utc),
+            download_status=recorded.get("download_status") or 0,
+            download_format=recorded.get("download_format") or "unknown",
+            download_size=recorded.get("download_size") or 0,
+            raw_file_path=recorded.get("raw_file_path") or "",
+            total_centres=recorded.get("total_centres") or 0,
+            new_centres=recorded.get("new_centres") or 0,
+            updated_centres=recorded.get("updated_centres") or 0,
+            removed_centres=recorded.get("removed_centres") or 0,
+            failed_centres=recorded.get("failed_centres") or 0,
+            geocoded_centres=recorded.get("geocoded_centres") or 0,
+            cache_hits=recorded.get("cache_hits") or 0,
+            api_calls=recorded.get("api_calls") or 0,
+            provider_usage=dict(recorded.get("provider_usage") or {}),
+            validation_summary=dict(recorded.get("validation_summary") or {}),
         )
 
-        # Try to populate stats from existing data
-        from processing.normalizer import Normalizer
+        # Fall back to artifacts for anything the pipeline steps did not record
+        if not stats.raw_file_path or not stats.download_size:
+            try:
+                from processing.downloader import Downloader
 
-        normalizer = Normalizer()
-        centres = normalizer.load()
-        stats.total_centres = len(centres)
+                latest = Downloader().get_latest_raw()
+                if latest:
+                    stats.raw_file_path = stats.raw_file_path or str(latest)
+                    stats.download_size = stats.download_size or latest.stat().st_size
+            except Exception:  # noqa: BLE001
+                logging.getLogger(__name__).debug(
+                    "No raw file available for report fallback"
+                )
+
+        if not stats.total_centres:
+            try:
+                from processing.normalizer import Normalizer
+
+                stats.total_centres = len(Normalizer().load())
+            except Exception:  # noqa: BLE001
+                logging.getLogger(__name__).debug(
+                    "Could not load centres for report fallback"
+                )
+
+        reports_dir = settings.PATHS.REPORTS_DIR
+        if not stats.failed_centres:
+            stats.failed_centres = len(_read_first_column(reports_dir / "failed.csv"))
+        if not stats.updated_centres:
+            stats.updated_centres = len(
+                set(_read_first_column(reports_dir / "changes.csv"))
+            )
 
         exporter = ReportExporter()
         paths = exporter.generate_all(stats)
@@ -672,6 +793,13 @@ def run_full_pipeline(
     console = Console()
 
     start_time = datetime.now(tz=timezone.utc)
+
+    from utils.stats_store import StatsStore
+
+    # New run: discard stats from any previous run
+    StatsStore().clear()
+    StatsStore().update({"start_time": start_time.isoformat()})
+
     console.print(
         Panel("[bold]SAT Centre Updater — Full Pipeline[/bold]", border_style="cyan")
     )
