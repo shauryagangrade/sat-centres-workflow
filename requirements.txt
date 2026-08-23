@@ -4,7 +4,7 @@
 # HTTP & Networking
 requests>=2.31.0
 aiohttp>=3.14.1
-fake-useragent>=1.4.0
+fake-useragent>=1.5.1
 
 # CLI & Terminal
 rich>=13.7.0
