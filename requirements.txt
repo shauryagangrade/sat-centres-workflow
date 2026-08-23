@@ -21,7 +21,7 @@ rapidfuzz>=3.14.5
 # Data Processing
 beautifulsoup4>=4.12.2
 lxml>=4.9.4
-pyyaml>=6.0.1
+pyyaml>=6.0.3
 
 # Logging
 loguru>=0.7.2
