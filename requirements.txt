@@ -8,7 +8,7 @@ fake-useragent>=1.5.1
 
 # CLI & Terminal
 rich>=13.7.0
-click>=8.1.7
+click>=8.4.2
 tqdm>=4.70.0
 
 # Data Validation & Models
