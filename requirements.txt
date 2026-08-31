@@ -24,7 +24,7 @@ lxml>=4.9.4
 pyyaml>=6.0.3
 
 # Logging
-loguru>=0.7.2
+loguru>=0.7.3
 
 # Cryptography (for token handling)
 cryptography>=41.0.7
