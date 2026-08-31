@@ -12,7 +12,7 @@ click>=8.4.2
 tqdm>=4.70.0
 
 # Data Validation & Models
-pydantic>=2.5.0
+pydantic>=2.13.5
 
 # Geocoding & Fuzzy Matching
 geopy>=2.5.0
