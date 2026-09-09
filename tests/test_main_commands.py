@@ -252,19 +252,21 @@ class TestPromptSampleJson:
         from main import _prompt_sample_json
 
         monkeypatch.setattr("builtins.input", _make_input(["{bad"]))
-        console = Console(file=io.StringIO(), width=100)
+        buffer = io.StringIO()
+        console = Console(file=buffer, width=100)
 
         assert _prompt_sample_json(console) is None
-        assert "Invalid JSON" in console.file.getvalue()
+        assert "Invalid JSON" in buffer.getvalue()
 
     def test_returns_none_on_non_dict(self, monkeypatch) -> None:
         from main import _prompt_sample_json
 
         monkeypatch.setattr("builtins.input", _make_input(["[1, 2, 3]"]))
-        console = Console(file=io.StringIO(), width=100)
+        buffer = io.StringIO()
+        console = Console(file=buffer, width=100)
 
         assert _prompt_sample_json(console) is None
-        assert "Sample must be a JSON object" in console.file.getvalue()
+        assert "Sample must be a JSON object" in buffer.getvalue()
 
 
 class TestAddTemplateInteractive:
@@ -311,10 +313,11 @@ class TestAddTemplateInteractive:
 
         lines = ["../escape", '{"name": ""}']
         monkeypatch.setattr("builtins.input", _make_input(lines))
-        console = Console(file=io.StringIO(), width=100)
+        buffer = io.StringIO()
+        console = Console(file=buffer, width=100)
 
         store = TemplateStore(templates_dir=tmp_path)
         _add_template_interactive(console, store)
 
-        assert "Invalid template name" in console.file.getvalue()
+        assert "Invalid template name" in buffer.getvalue()
         assert store.list_templates() == []

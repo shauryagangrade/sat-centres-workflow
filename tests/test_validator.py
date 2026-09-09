@@ -25,7 +25,7 @@ class TestCentreValidator:
     def setup_method(self) -> None:
         """Set up test fixtures with a restricted country list."""
         self.original_countries = settings.VALIDATION.VALID_COUNTRIES
-        settings.VALIDATION.VALID_COUNTRIES = self.RESTRICTIVE_COUNTRIES
+        settings.VALIDATION.VALID_COUNTRIES = list(self.RESTRICTIVE_COUNTRIES)
         self.validator = CentreValidator()
 
     def teardown_method(self) -> None:
