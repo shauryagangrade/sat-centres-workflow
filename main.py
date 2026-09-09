@@ -647,7 +647,12 @@ def run_validate() -> None:
             }
         )
 
-        normalizer.save(valid)
+        # NOTE: intentionally do NOT overwrite sat_centres.json here. Validation
+        # is a report-only step; the source dataset is owned by the
+        # normalize/geocode steps. Saving only `valid` here silently drops the
+        # remaining centres (missing coords / borderline confidence / wrong
+        # country), which makes downstream `--transform` produce a partial
+        # dataset.
     except Exception as e:  # noqa: BLE001
         console.print(f"[red]Error: {e}[/red]")
         logging.getLogger(__name__).error(traceback.format_exc())

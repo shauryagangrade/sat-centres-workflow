@@ -222,6 +222,21 @@ class TestPlaceTypeEvidenceCollector:
         evidence = self.collector.collect("Some House", "", raw)
         assert evidence.is_negative_type is True
 
+    def test_educational_name_beats_negative_type(self):
+        # Regression: a school whose OSM record classifies the parcel as
+        # "house"/"residential" must not be hard-rejected when its name
+        # explicitly indicates an educational institution.
+        raw = {"type": "house"}
+        evidence = self.collector.collect("St James International School", "", raw)
+        assert evidence.is_educational is True
+        assert evidence.is_negative_type is False
+
+    def test_negative_type_wins_without_educational_name(self):
+        raw = {"type": "residential"}
+        evidence = self.collector.collect("Maple Residence", "", raw)
+        assert evidence.is_negative_type is True
+        assert evidence.is_educational is False
+
     def test_educational_keyword(self):
         evidence = self.collector.collect("Legacy Academy", "")
         assert evidence.is_educational is True

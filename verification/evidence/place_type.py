@@ -168,15 +168,12 @@ class PlaceTypeEvidenceCollector:
             evidence.confidence = 0.9
             return evidence
 
-        # Check if it's a negative type
-        if place_type in NEGATIVE_TYPES:
-            evidence.category = place_type
-            evidence.is_negative_type = True
-            evidence.negative_type_detail = NEGATIVE_TYPES[place_type]
-            evidence.confidence = 0.8
-            return evidence
-
-        # Check name for educational keywords
+        # Check name for educational keywords BEFORE the negative-type check.
+        # A candidate whose name explicitly names a school/university is almost
+        # certainly an SAT venue, even when the raw OSM record classifies the
+        # parcel (e.g. "house" or "residential") rather than the institution.
+        # Prioritising the name here avoids false hard-rejections of otherwise
+        # strong matches.
         name_lower = candidate_name.lower()
         for keyword in EDUCATIONAL_KEYWORDS:
             if keyword in name_lower:
@@ -184,6 +181,14 @@ class PlaceTypeEvidenceCollector:
                 evidence.is_educational = True
                 evidence.confidence = 0.7
                 return evidence
+
+        # Check if it's a negative type
+        if place_type in NEGATIVE_TYPES:
+            evidence.category = place_type
+            evidence.is_negative_type = True
+            evidence.negative_type_detail = NEGATIVE_TYPES[place_type]
+            evidence.confidence = 0.8
+            return evidence
 
         # Check OSM tags if available
         if raw_data:
