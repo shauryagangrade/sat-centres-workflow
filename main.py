@@ -16,7 +16,11 @@ Usage:
     python main.py --update         # Update dataset only
     python main.py --reports        # Generate reports only
     python main.py --resume         # Resume failed centres
+    python main.py --transform --template NAME   # Transform using a saved schema template
+    python main.py --list-templates              # List saved schema templates
 """
+
+from __future__ import annotations
 
 import argparse
 import logging
@@ -24,6 +28,12 @@ import sys
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.console import Console
+
+    from utils.template_store import TemplateStore
 
 
 # Setup logging before imports that might fail
@@ -111,6 +121,22 @@ def get_parser() -> argparse.ArgumentParser:
         "--sample-json",
         type=str,
         help="Path to file containing sample JSON for schema transformation",
+    )
+    parser.add_argument(
+        "--template",
+        type=str,
+        help="Name of a saved schema template to use for transformation",
+    )
+    parser.add_argument(
+        "--list-templates",
+        action="store_true",
+        help="List saved schema templates and exit",
+    )
+    parser.add_argument(
+        "--save-template",
+        type=str,
+        metavar="NAME",
+        help="Save the sample JSON (--sample-json) as a reusable template",
     )
 
     return parser
@@ -232,15 +258,109 @@ def run_full_pipeline_interactive() -> None:
 
 
 def run_transform_interactive() -> None:
-    """Run the schema transform step with interactive sample JSON input."""
+    """Run the schema transform step with saved-template or pasted sample input."""
     try:
         from rich.console import Console
-        from rich.panel import Panel
+        from rich.prompt import Prompt
+        from rich.table import Table
     except ImportError:
         print("Error: 'rich' package not installed. Run: pip install rich")
         return
 
     console = Console()
+    from utils.template_store import TemplateStore
+
+    store = TemplateStore()
+
+    while True:
+        names = store.list_templates()
+
+        console.print()
+        table = Table(title="Schema Templates", show_header=False, border_style="cyan")
+        table.add_column("Option", style="bold yellow", width=8)
+        table.add_column("Action", style="white")
+
+        rows: list[tuple[str, str]] = []
+        for idx, tname in enumerate(names, start=1):
+            rows.append((str(idx), f"Use template: {tname}"))
+        add_row = len(rows) + 1
+        rows.append((str(add_row), "Add a new template"))
+        next_row = len(rows) + 1
+        rows.append((str(next_row), "Paste a sample JSON and transform (no save)"))
+        rows.append((str(next_row + 1), "Manage templates (delete)"))
+        rows.append(("0", "Go back"))
+
+        for num, action in rows:
+            table.add_row(num, action)
+
+        console.print(table)
+
+        choices = [row[0] for row in rows]
+        choice = Prompt.ask(
+            "\n[bold cyan]Select option[/bold cyan]",
+            choices=choices,
+            default="0",
+        )
+
+        if choice == "0":
+            return
+        if choice == str(add_row):
+            _add_template_interactive(console, store)
+        elif choice == str(next_row):
+            sample = _prompt_sample_json(console)
+            if sample is None:
+                continue
+            console.print("\n[bold]Processing schema transformation...[/bold]\n")
+            run_transform(sample_json=sample)
+        elif choice == str(next_row + 1):
+            _run_template_management(console, store, names)
+        else:
+            # A specific saved template was chosen
+            idx = int(choice) - 1
+            tname = names[idx]
+            sample = store.get_template(tname)
+            if sample is None:
+                console.print(f"[red]Could not load template '{tname}'.[/red]")
+                continue
+            console.print(
+                f"[bold]Using template '{tname}'[/bold] "
+                f"[dim]({len(sample)} fields)[/dim]"
+            )
+            console.print("\n[bold]Processing schema transformation...[/bold]\n")
+            run_transform(sample_json=sample)
+
+
+def _run_template_management(
+    console: Console, store: TemplateStore, names: list[str]
+) -> None:
+    """Allow the user to delete saved templates."""
+    from rich.prompt import Prompt
+
+    if not names:
+        console.print("[yellow]No saved templates to manage.[/yellow]")
+        return
+
+    console.print(f"[bold]{len(names)} saved template(s):[/bold]")
+    for tname in names:
+        console.print(f"  - {tname}")
+
+    to_delete = Prompt.ask(
+        "\n[bold cyan]Enter template name to delete[/bold cyan] (or blank to cancel)",
+        default="",
+    )
+    if not to_delete.strip():
+        return
+
+    if store.delete_template(to_delete.strip()):
+        console.print(f"[green]Deleted template '{to_delete}'.[/green]")
+    else:
+        console.print(f"[red]No template named '{to_delete}'.[/red]")
+
+
+def _prompt_sample_json(console) -> dict | None:
+    """Prompt the user to paste a sample JSON object; return it or None."""
+    from rich.panel import Panel
+
     console.print(
         Panel(
             "[bold]Paste a sample JSON excerpt showing the fields you want[/bold]\n"
@@ -274,24 +394,43 @@ def run_transform_interactive() -> None:
 
     if not sample_str.strip():
         console.print("[red]No sample JSON provided.[/red]")
-        return
+        return None
+
+    import json
 
     try:
-        import json
-
         sample = json.loads(sample_str)
     except json.JSONDecodeError as e:
         console.print(f"[red]Invalid JSON: {e}[/red]")
-        return
+        return None
 
     if not isinstance(sample, dict):
         console.print(
             "[red]Sample must be a JSON object, not a list or primitive.[/red]"
         )
+        return None
+
+    return sample
+
+
+def _add_template_interactive(console: Console, store: TemplateStore) -> None:
+    """Prompt for a name and sample JSON, then save as a reusable template."""
+    from rich.prompt import Prompt
+
+    name = Prompt.ask("[bold cyan]Template name[/bold cyan]")
+    if not name.strip():
+        console.print("[red]Template name cannot be empty.[/red]")
         return
 
-    console.print("\n[bold]Processing schema transformation...[/bold]\n")
-    run_transform(sample_json=sample)
+    sample = _prompt_sample_json(console)
+    if sample is None:
+        return
+
+    try:
+        path = store.save_template(name, sample)
+        console.print(f"[green]Saved template '{name}' -> {path}[/green]")
+    except (ValueError, TypeError) as e:
+        console.print(f"[red]Not saved: {e}[/red]")
 
 
 # ---- Pipeline Step Runners ----
@@ -705,7 +844,9 @@ def run_resume() -> None:
 
 
 def run_transform(
-    sample_json: dict | None = None, sample_json_file: str | None = None
+    sample_json: dict | None = None,
+    sample_json_file: str | None = None,
+    template_name: str | None = None,
 ) -> None:
     """Run the schema transform step."""
     import json
@@ -735,9 +876,24 @@ def run_transform(
                 console.print(f"[red]File not found: {sample_json_file}[/red]")
                 return
             sample = json.loads(sample_path.read_text(encoding="utf-8"))
+        elif template_name:
+            from utils.template_store import TemplateStore
+
+            store = TemplateStore()
+            sample = store.get_template(template_name)
+            if sample is None:
+                console.print(
+                    f"[red]Template '{template_name}' not found or invalid.[/red]"
+                )
+                return
+            console.print(
+                f"[bold]Using template '{template_name}'[/bold] "
+                f"[dim]({len(sample)} fields)[/dim]"
+            )
         else:
             console.print(
-                "[red]No sample JSON provided. Use --sample-json or paste interactively.[/red]"
+                "[red]No sample JSON provided. Use --sample-json, "
+                "--template, or paste interactively.[/red]"
             )
             return
 
@@ -778,6 +934,61 @@ def run_transform(
         logging.getLogger(__name__).error(traceback.format_exc())
 
 
+def run_list_templates() -> None:
+    """List all saved schema templates."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from utils.template_store import TemplateStore
+
+    console = Console()
+    names = TemplateStore().list_templates()
+
+    if not names:
+        console.print(
+            "[yellow]No saved templates found in the templates directory.[/yellow]"
+        )
+        return
+
+    table = Table(title="Saved Schema Templates", border_style="cyan")
+    table.add_column("Name", style="bold yellow")
+    for name in names:
+        table.add_row(name)
+    console.print(table)
+
+
+def run_save_template(sample_json_file: str, name: str) -> None:
+    """Save a sample JSON file as a reusable schema template."""
+    import json
+
+    from rich.console import Console
+
+    from utils.template_store import TemplateStore
+
+    console = Console()
+
+    sample_path = Path(sample_json_file)
+    if not sample_path.exists():
+        console.print(f"[red]File not found: {sample_json_file}[/red]")
+        return
+
+    try:
+        sample = json.loads(sample_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        console.print(f"[red]Invalid JSON in {sample_json_file}: {e}[/red]")
+        return
+
+    if not isinstance(sample, dict):
+        console.print("[red]Sample must be a JSON object.[/red]")
+        return
+
+    try:
+        path = TemplateStore().save_template(name, sample)
+        console.print(f"[green]Saved template '{name}' -> {path}[/green]")
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+
+
 def run_full_pipeline(
     curl_command: str | None = None,
     curl_file: str | None = None,
@@ -785,6 +996,7 @@ def run_full_pipeline(
     transform: bool = False,
     sample_json: dict | None = None,
     sample_json_file: str | None = None,
+    template_name: str | None = None,
 ) -> None:
     """Run the entire pipeline end-to-end."""
     from rich.console import Console
@@ -834,7 +1046,11 @@ def run_full_pipeline(
     # Step 7: Schema Transform (optional)
     if transform:
         console.print("\n[bold cyan]Step 7/7: Schema Transform[/bold cyan]")
-        run_transform(sample_json=sample_json, sample_json_file=sample_json_file)
+        run_transform(
+            sample_json=sample_json,
+            sample_json_file=sample_json_file,
+            template_name=template_name,
+        )
     else:
         console.print("\n[bold cyan]Step 7/7: Schema Transform[/bold cyan]")
         console.print("[yellow]Skipped (use --transform to enable)[/yellow]")
@@ -865,15 +1081,29 @@ def main() -> None:
         settings.GEOCODING.MAX_WORKERS = args.workers
 
     try:
-        if args.full:
+        if args.list_templates:
+            run_list_templates()
+        elif args.save_template:
+            if not args.sample_json:
+                print(
+                    "Error: --save-template requires --sample-json <file> to provide the sample."
+                )
+                sys.exit(1)
+            run_save_template(
+                sample_json_file=args.sample_json, name=args.save_template
+            )
+        elif args.full:
             run_full_pipeline(
                 curl_file=args.curl_file,
                 force=args.force_geocode,
                 transform=args.transform,
                 sample_json_file=args.sample_json,
+                template_name=args.template,
             )
         elif args.transform:
-            run_transform(sample_json_file=args.sample_json)
+            run_transform(
+                sample_json_file=args.sample_json, template_name=args.template
+            )
         elif args.download:
             if args.paste_curl:
                 run_download_interactive()

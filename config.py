@@ -59,22 +59,17 @@ class PathSettings:
     REPORTS_DIR: Path = Path("datasets/sat/reports")
     LOGS_DIR: Path = Path("logs")
     CACHE_DIR: Path = Path("cache")
+    TEMPLATES_DIR: Path = Path("templates")
 
 
 @dataclass
 class ValidationSettings:
     """Validation rules configuration."""
 
-    VALID_COUNTRIES: list[str] = field(
-        default_factory=lambda: [
-            "INDIA",
-            "US",
-            "CANADA",
-            "UK",
-            "UAE",
-            "SINGAPORE",
-        ]
-    )
+    # Empty list = all countries allowed. Populate with canonical forms or
+    # aliases (e.g. "INDIA", "brazil", "AU") to restrict validation to a
+    # specific set of countries.
+    VALID_COUNTRIES: list[str] = field(default_factory=list)
     MAX_LATITUDE: float = 90.0
     MIN_LATITUDE: float = -90.0
     MAX_LONGITUDE: float = 180.0

@@ -10,8 +10,10 @@ Usage:
     canonical = normalize_country("United States of America")  # -> "US"
 """
 
-# Canonical forms must match the values in config.VALIDATION.VALID_COUNTRIES.
-# Each key is a canonical form; values are all recognized variants (lowercase).
+# Canonical forms are used for comparison across the pipeline (scorer,
+# verifier). Validation accepts all countries by default unless
+# config.VALIDATION.VALID_COUNTRIES is restricted. Each key is a canonical
+# form; values are all recognized variants (lowercase).
 _COUNTRY_ALIASES: dict[str, set[str]] = {
     "INDIA": {
         "india",
@@ -59,6 +61,14 @@ _COUNTRY_ALIASES: dict[str, set[str]] = {
         "singapore",
         "sg",
         "republic of singapore",
+    },
+    "BRAZIL": {
+        "brazil",
+        "br",
+        "brasil",
+        "federative republic of brazil",
+        "república federativa do brasil",
+        "republica federativa do brasil",
     },
 }
 

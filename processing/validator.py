@@ -66,7 +66,7 @@ class CentreValidator:
     Checks:
     - Missing latitude/longitude
     - Coordinates in the ocean
-    - Wrong country
+    - Wrong country (only when config restricts VALID_COUNTRIES; empty = all)
     - Wrong city (optional, less strict)
     - Duplicate centre IDs
     - Duplicate coordinate pairs
@@ -89,6 +89,8 @@ class CentreValidator:
         self.valid_countries: set[str] = {
             normalize_country(c) for c in settings.VALIDATION.VALID_COUNTRIES
         }
+        # Empty country list means all countries are allowed.
+        self.check_country = bool(self.valid_countries)
         self.confidence_threshold = settings.GEOCODING.CONFIDENCE_THRESHOLD
 
     def validate(
@@ -163,9 +165,10 @@ class CentreValidator:
             result.failed_at = "ocean_check"
             return result
 
-        # Check wrong country (normalize to canonical form first)
+        # Check wrong country (only when a restricted country list is set)
         if (
-            centre.country
+            self.check_country
+            and centre.country
             and normalize_country(centre.country) not in self.valid_countries
         ):
             result.is_valid = False

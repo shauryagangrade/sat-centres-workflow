@@ -118,6 +118,24 @@ class TestNormalizeCountry:
         for variant in sg_variants:
             assert normalize_country(variant) == "SINGAPORE", f"Failed for: {variant}"
 
+    def test_canonical_brazil_forms(self) -> None:
+        """All Brazil variants normalize to 'BRAZIL'."""
+        br_variants = [
+            "Brazil",
+            "brazil",
+            "BRAZIL",
+            "BR",
+            "br",
+            "Brasil",
+            "brasil",
+            "Federative Republic of Brazil",
+            "federative republic of brazil",
+            "República Federativa do Brasil",
+            "república federativa do brasil",
+        ]
+        for variant in br_variants:
+            assert normalize_country(variant) == "BRAZIL", f"Failed for: {variant}"
+
     def test_unknown_country_uppercased(self) -> None:
         """Unknown country names are uppercased as fallback."""
         assert normalize_country("Germany") == "GERMANY"
@@ -148,6 +166,7 @@ class TestNormalizeCountry:
         assert "UK" in canonical
         assert "UAE" in canonical
         assert "SINGAPORE" in canonical
+        assert "BRAZIL" in canonical
 
     def test_known_variants_are_lowercase(self) -> None:
         """All known variants should be lowercase for reliable matching."""

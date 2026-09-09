@@ -98,6 +98,9 @@ python main.py
 | `--resume` | Resume failed centres |
 | `--transform` | Apply schema transformation after normalize |
 | `--sample-json <path>` | Path to a JSON file defining the target schema |
+| `--template <name>` | Use a saved schema template for transformation |
+| `--list-templates` | List saved schema templates and exit |
+| `--save-template <name>` | Save the `--sample-json` file as a reusable template |
 | `--force-geocode` | Force re-geocoding of all centres |
 | `--confidence <float>` | Override confidence threshold |
 | `--workers <int>` | Override max geocoding workers |
@@ -109,7 +112,7 @@ The Schema Transformer lets you reshape the normalized centre data into any cust
 
 ### How It Works
 
-1. Paste a sample JSON object with the keys you want (interactive mode, option 9)
+1. Paste a sample JSON object with the keys you want (interactive mode, option 9), or pick a saved template
 2. The system infers field mappings (handles aliases like `lat` → `latitude`, `centre_name` → `name`)
 3. Supports nested objects (e.g. `location.lat`, `contact.phone`)
 4. Preserves literal string values (e.g. `"type": "school"` stays as-is)
@@ -124,9 +127,29 @@ python main.py --transform --sample-json schema.json
 # Run full pipeline with transform
 python main.py --full --transform --sample-json schema.json
 
+# Use a saved template
+python main.py --transform --template myloc
+
 # Interactive: paste a sample JSON object
 python main.py  # then select option 9
 ```
+
+### Schema Templates
+
+Templates let you save a sample JSON schema and reuse it later without re-pasting. Each template is stored as a `.json` file (one per template) in the `templates/` directory. A template is simply the same sample JSON object you would paste interactively.
+
+```bash
+# Save a sample JSON file as a reusable template
+python main.py --save-template myloc --sample-json schema.json
+
+# List saved templates
+python main.py --list-templates
+
+# Transform using a saved template
+python main.py --transform --template myloc
+```
+
+In interactive mode (option 9), you can **Add a new template** (name + paste sample JSON), pick any saved template to transform with, paste a sample for a one-off transform, or delete existing templates.
 
 ### Example Schema
 
@@ -232,6 +255,8 @@ sat_updater/
 │       ├── generated/       # Normalised centre data
 │       ├── output/          # Final production-ready JSON
 │       └── reports/         # Validation & change reports
+│
+├── templates/               # Saved schema templates for --transform
 │
 ├── tests/                   # Unit tests
 └── logs/                    # Daily log files

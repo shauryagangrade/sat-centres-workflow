@@ -21,6 +21,7 @@ def setup_directories() -> None:
         settings.PATHS.REPORTS_DIR,
         settings.PATHS.LOGS_DIR,
         settings.PATHS.CACHE_DIR,
+        settings.PATHS.TEMPLATES_DIR,
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)

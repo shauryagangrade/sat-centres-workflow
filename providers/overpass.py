@@ -148,6 +148,7 @@ class OverpassProvider:
             "CA": "Canada",
             "AE": "United Arab Emirates",
             "SG": "Singapore",
+            "BR": "Brazil",
             "AU": "Australia",
             "DE": "Germany",
             "FR": "France",

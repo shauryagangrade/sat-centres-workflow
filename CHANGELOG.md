@@ -5,6 +5,13 @@ All notable changes to **sat-centres-workflow** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Reusable JSON schema templates for the "Transform to Custom Schema" step. Option 9 now lets you pick a saved template, save a pasted sample as a template, list templates, and delete them. New CLI flags: `--template <name>`, `--list-templates`, `--save-template <name>`. Templates are stored as `.json` files in the `templates/` directory.
+- Brazil support: added `BRAZIL` to valid countries and country-name aliases (`brasil`, `br`, etc.) so Brazilian centres are geocoded and retained instead of being dropped at validation.
+- All countries are now supported by default: `VALID_COUNTRIES` defaults to an empty list, which disables the country whitelist in validation. Populate it to restrict to a specific set.
+
 ## [1.0.1] - 2026-07-07
 
 ## Added
