@@ -15,6 +15,10 @@ updates:
       # Pin major versions manually — only allow patch + minor auto-updates
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -25,3 +29,7 @@ updates:
       - "github-actions"
     commit-message:
       prefix: "chore(actions)"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
