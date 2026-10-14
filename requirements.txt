@@ -3,7 +3,7 @@
 
 # HTTP & Networking
 requests>=2.34.2
-aiohttp>=3.14.3
+aiohttp>=3.14.5
 fake-useragent>=1.5.1
 
 # CLI & Terminal
@@ -12,7 +12,7 @@ click>=8.5.0
 tqdm>=4.70.1
 
 # Data Validation & Models
-pydantic>=2.13.5
+pydantic>=2.14.0
 
 # Geocoding & Fuzzy Matching
 geopy>=2.5.0
@@ -38,5 +38,5 @@ pytest-cov>=4.1.0
 black==24.10.0
 isort==5.13.2
 mypy==1.20.2
-ruff>=0.16.7
-types-requests>=2.33.0.20260906
+ruff>=0.17.0
+types-requests>=2.33.0.20261006
